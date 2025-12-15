@@ -1,6 +1,6 @@
 {"custom/emojii": {
   "format": "<span font='16'>E</span>",
-  "on-click": "wofi-emoji",
+  "on-click": "fuzzel-emoji",
   "tooltip": true,
   "tooltip-format": "Emojii Picker (Super+.)"
 }}

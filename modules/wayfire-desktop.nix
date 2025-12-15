@@ -227,7 +227,6 @@ in {
     # Wofi configuration - standard XDG location
     "xdg/wofi/config".source = ../dotfiles/wofi/config;
     "xdg/wofi/style.css".source = ../dotfiles/wofi/style.css;
-    "xdg/wofi-emoji/config".source = ../dotfiles/wofi-emoji/config;
     # Mako notification config - standard XDG location
     "xdg/mako/kartoza".source = ../dotfiles/mako/kartoza;
     # nwg-launchers configs - standard XDG location
