@@ -19,6 +19,7 @@ echo '{}' >"${OUTPUT_FILE}.tmp"
 # Merge all JSON files in order (sorted by filename)
 for json_file in "${CONFIG_DIR}"/*.json; do
   if [ -f "${json_file}" ]; then
+    echo "Merging ${json_file}..."
     # Merge the JSON file into the accumulated result
     jq -s '.[0] * .[1]' "${OUTPUT_FILE}.tmp" "${json_file}" >"${OUTPUT_FILE}.tmp2"
     mv "${OUTPUT_FILE}.tmp2" "${OUTPUT_FILE}.tmp"
