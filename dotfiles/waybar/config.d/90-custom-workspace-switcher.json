@@ -1,0 +1,10 @@
+{"custom/workspace-switcher": {
+  "format": " {}",
+  "tooltip": true,
+  "tooltip-format": "Current workspace: {}\nClick to switch workspaces (Super+S)",
+  "return-type": "json",
+  "exec": "workspace-display.sh",
+  "on-click": "workspace-switcher.sh",
+  "interval": 2,
+  "restart-interval": 1
+}}

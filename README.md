@@ -8,6 +8,7 @@ This flake provides a complete Wayfire desktop environment configuration that ca
 
 - Wayfire compositor with plugins
 - Waybar status bar with modular configuration
+- **Workspace Management**: Named workspaces with fuzzel-based switcher
 - Nwggrid and nwgpanel application launcher
 - Mako notification daemon
 - Fuzzel and other utilities
@@ -259,6 +260,120 @@ swww img /path/to/your/wallpaper.jpg
 # Test lock screen wallpaper (Ctrl+Alt+L to lock)
 swaylock -c /etc/xdg/swaylock/config
 ```
+
+## Workspace Management
+
+The module provides a comprehensive workspace management system with named workspaces and fuzzel-based switching.
+
+### Features
+
+- **Named Workspaces**: Each workspace has a meaningful name (Browser, Chat, Terminal, etc.)
+- **Fuzzel Integration**: Beautiful graphical workspace selector with fuzzel
+- **Waybar Widget**: Clickable workspace indicator in status bar
+- **Keyboard Shortcuts**: Multiple ways to switch workspaces
+- **Change Tracking**: Automatic logging when switching workspaces
+- **User Customizable**: Override workspace names easily
+
+### Default Workspace Layout
+
+The system provides a 3×3 workspace grid with meaningful default names:
+
+```
+┌─────────────┬─────────────┬─────────────┐
+│ 1: Browser  │ 2: Chat     │ 3: Terminal │
+├─────────────┼─────────────┼─────────────┤
+│ 4: Project1 │ 5: Project2 │ 6: Media    │
+├─────────────┼─────────────┼─────────────┤
+│ 7: Documents│ 8: Games    │ 9: System   │
+└─────────────┴─────────────┴─────────────┘
+```
+
+### Usage
+
+#### Keyboard Shortcuts
+
+- **`Super + S`** - Open fuzzel workspace switcher (primary method)
+- **`Super + 1-9`** - Switch directly to workspace 1-9
+- **`Super + Shift + 1-9`** - Move current window to workspace 1-9
+- **`Ctrl + Super + Arrow Keys`** - Navigate workspace grid
+- **`Super + Shift + Ctrl + Arrows`** - Move window in workspace grid
+
+#### Waybar Integration
+
+The waybar displays a workspace widget showing:
+- Current workspace number and name (e.g., "2: Chat")
+- Click to open fuzzel workspace switcher
+- Auto-updates when workspace changes
+- Styled with Kartoza theme colors
+
+#### Managing Workspace Names
+
+```bash
+# Show current workspace
+workspace-names.sh current
+
+# List all workspace names  
+workspace-names.sh list
+
+# Rename a workspace
+workspace-names.sh set 1 "Web Browser"
+workspace-names.sh set 4 "Development"
+
+# Get specific workspace name
+workspace-names.sh get 2
+```
+
+### Customization
+
+#### Custom Workspace Names
+
+Override the default workspace names by copying and editing the configuration:
+
+```bash
+# Copy system config to user directory
+mkdir -p ~/.config/wayfire
+cp /etc/xdg/wayfire/workspace-names.conf ~/.config/wayfire/
+
+# Edit workspace names (format: workspace_number=workspace_name)
+cat >> ~/.config/wayfire/workspace-names.conf << EOF
+0=My Browser
+1=Slack & Teams
+2=Terminal Work
+3=Main Project
+4=Side Project
+5=Entertainment
+6=File Management
+7=Gaming
+8=System Admin
+EOF
+```
+
+#### Adding Workspace Change Hooks
+
+The system calls `workspace-changed.sh` whenever workspace changes. You can override this script to add custom actions:
+
+```bash
+# Copy and customize the workspace change hook
+cp /etc/xdg/wayfire/scripts/workspace-changed.sh ~/.config/wayfire/scripts/
+
+# Edit to add your custom logic:
+# - Change wallpaper per workspace
+# - Start/stop applications
+# - Adjust system settings
+# - etc.
+```
+
+### Behind the Scenes
+
+The workspace management system consists of:
+
+- **`workspace-switcher.sh`** - Fuzzel-based workspace selector
+- **`workspace-names.sh`** - Name management utility  
+- **`workspace-changed.sh`** - Change trigger hook
+- **`workspace-display.sh`** - Waybar widget script
+- **`workspace-names.conf`** - Name mappings configuration
+
+All scripts support XDG user overrides and follow the same override patterns as other configuration files.
 
 ## Customizing Dotfiles
 

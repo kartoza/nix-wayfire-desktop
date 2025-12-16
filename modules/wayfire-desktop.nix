@@ -420,6 +420,8 @@ in {
         in configWithSubstitutions + "\n\n" + displayOutputs;
       };
       "xdg/wayfire/scripts".source = ../dotfiles/wayfire/scripts;
+      # Wayfire workspace names configuration
+      "xdg/wayfire/workspace-names.conf".source = ../dotfiles/wayfire/workspace-names.conf;
       # Waybar configuration - standard XDG location
       "xdg/waybar/style.css".source = ../dotfiles/waybar/style.css;
       # Build combined waybar config from modular JSON files

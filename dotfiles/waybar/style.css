@@ -53,7 +53,8 @@ window#waybar {
 #custom-power,
 #custom-notification-count,
 #custom-notification-toggle, 
-#custom-recorder {
+#custom-recorder,
+#custom-workspace-switcher {
     /* orange kartoza colour but with some transparency */
     min-height: 12px;
     padding: 6px 10px;
@@ -85,7 +86,8 @@ window#waybar {
 #custom-nwg-look:hover,
 #scratchpad:hover,
 #custom-power:hover,
-#custom-recorder:hover {
+#custom-recorder:hover,
+#custom-workspace-switcher:hover {
     color: #6AAFD6;
 }
 

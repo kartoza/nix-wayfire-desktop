@@ -129,11 +129,87 @@ cp your-custom-sound.wav ~/.config/mako/sounds/notification.wav
 
 All applications and scripts will automatically use the user's configuration if present.
 
+### Workspace Management System
+
+The module provides a comprehensive workspace management system with named workspaces and fuzzel-based switching:
+
+#### Features
+
+- **Named Workspaces**: Each workspace can have a custom name (Browser, Chat, Terminal, etc.)
+- **Fuzzel Switcher**: Beautiful graphical workspace selector with current workspace indicator
+- **Waybar Integration**: Clickable workspace widget showing current workspace
+- **Change Tracking**: Automatic logging and notifications when switching workspaces
+- **User Customizable**: Override workspace names via user configuration
+
+#### Default Workspace Layout (3×3 Grid)
+
+```
+┌─────────────┬─────────────┬─────────────┐
+│ 0: Browser  │ 1: Chat     │ 2: Terminal │
+├─────────────┼─────────────┼─────────────┤
+│ 3: Project1 │ 4: Project2 │ 5: Media    │
+├─────────────┼─────────────┼─────────────┤
+│ 6: Documents│ 7: Games    │ 8: System   │
+└─────────────┴─────────────┴─────────────┘
+```
+
+#### Keyboard Shortcuts
+
+- **`Super + S`** - Open fuzzel workspace switcher
+- **`Super + 1-9`** - Switch directly to workspace 1-9
+- **`Ctrl + Super + Arrow Keys`** - Navigate workspace grid
+- **`Super + Shift + 1-9`** - Move current window to workspace
+- **`Super + Shift + Ctrl + Arrows`** - Move window in workspace grid
+
+#### Waybar Widget
+
+The waybar includes a workspace widget that:
+- Shows current workspace number and name (e.g., "1: Browser")
+- Click to open fuzzel workspace switcher
+- Updates automatically when workspace changes
+- Styled with Kartoza orange accent colors
+
+#### Managing Workspace Names
+
+```bash
+# Show current workspace
+workspace-names.sh current
+
+# List all workspace names  
+workspace-names.sh list
+
+# Rename a workspace
+workspace-names.sh set 0 "Web Browser"
+workspace-names.sh set 3 "Development"
+
+# Get specific workspace name
+workspace-names.sh get 1
+```
+
+#### Customizing Workspace Names
+
+```bash
+# Copy system config to user location
+cp /etc/xdg/wayfire/workspace-names.conf ~/.config/wayfire/
+
+# Edit workspace names
+# Format: workspace_number=workspace_name
+echo "0=My Browser" >> ~/.config/wayfire/workspace-names.conf
+echo "1=Slack" >> ~/.config/wayfire/workspace-names.conf
+```
+
+#### Workspace Scripts
+
+- `workspace-switcher.sh` - Fuzzel-based workspace selector
+- `workspace-names.sh` - Workspace name management utility
+- `workspace-changed.sh` - Hook called when workspace changes
+- `workspace-display.sh` - Waybar widget for current workspace display
+
 ### Key Scripts and Utilities
 
 - `unlock-keyring` - GUI keyring unlock at login using zenity
-- `wayfire/scripts/` - Window switching, browser detection, recording toggles
-- `waybar/scripts/` - Status monitoring (temperature, power, notifications)
+- `wayfire/scripts/` - Window switching, browser detection, recording toggles, workspace management
+- `waybar/scripts/` - Status monitoring (temperature, power, notifications, workspace display)
 
 ## Development Workflow
 

@@ -4,6 +4,7 @@
     "margin-bottom": -1,
     "modules-left": [
         "custom/launcher",
+        "custom/workspace-switcher",
         "custom/recorder",
         "custom/gatus-prod",
         "custom/gatus-gsh",
