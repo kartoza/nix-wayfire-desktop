@@ -6,7 +6,24 @@ WORKSPACE_NAMES_FILE="$HOME/.config/wayfire/workspace-names.conf"
 
 # Function to get current workspace
 get_current_workspace() {
-    wlrctl toplevel list 2>/dev/null | grep 'workspace:' | head -1 | sed 's/.*workspace: //' | cut -d' ' -f1 || echo "0"
+    # First try wlrctl
+    local workspace=$(wlrctl toplevel list 2>/dev/null | grep 'workspace:' | head -1 | sed 's/.*workspace: //' | cut -d' ' -f1)
+    
+    # If wlrctl failed or returned empty, try alternative method
+    if [[ -z "$workspace" ]]; then
+        # Try using wayfire socket if available
+        if command -v wf-info >/dev/null 2>&1; then
+            workspace=$(wf-info 2>/dev/null | grep -oP 'workspace.*:\s*\K\d+' | head -1)
+        fi
+        
+        # Still empty? Try reading from wayfire directly
+        if [[ -z "$workspace" ]]; then
+            # Default to workspace 0 if all methods fail
+            workspace="0"
+        fi
+    fi
+    
+    echo "$workspace"
 }
 
 # Function to get workspace name

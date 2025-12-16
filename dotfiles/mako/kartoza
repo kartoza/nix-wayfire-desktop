@@ -34,6 +34,7 @@ format=<b>%s (%g)</b>\n%b
 # Non-actionable notifications - keep visible for grouping
 [actionable=false]
 invisible=0
+default-timeout=3000
 
 # Actionable notifications (like bluetooth pairing) styling
 # These should be visible immediately since they require user interaction
@@ -41,21 +42,25 @@ invisible=0
 border-color=#569FC6
 background-color=#2D353B
 invisible=0
+default-timeout=0
 
 # Critical/error notifications - red border
 [urgency=critical]
 border-color=#E67E80
 background-color=#2D353B
+default-timeout=0
 
 # Normal notifications - kartoza orange border  
 [urgency=normal]
 border-color=#DF9E2F
 background-color=#2D353B
+default-timeout=3000
 
 # Warning/low urgency notifications - kartoza blue border
 [urgency=low]
 border-color=#569FC6
 background-color=#2D353B
+default-timeout=3000
 
 # Do Not Disturb mode - completely disables the service
 [mode=do-not-disturb]

@@ -149,6 +149,8 @@ in {
       # GPG integration packages
       gnupg
       pinentry-gnome3
+      # Keyboard layout detection
+      xkblayout-state
       # Add these for better app compatibility
       audio-recorder
       blueman # Bluetooth manager with system tray

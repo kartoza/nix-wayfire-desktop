@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Waybar keyboard layout toggle script
-# Toggles between configured keyboard layouts
+# Toggles between configured keyboard layouts and detects external changes
 
 # Read layouts from Wayfire config (check user config first)
 WAYFIRE_CONFIG="$(xdg-config-path wayfire/wayfire.ini 2>/dev/null || echo "/etc/xdg/wayfire/wayfire.ini")"
@@ -17,35 +17,43 @@ else
   LAYOUT_SECONDARY="pt"
 fi
 
-# State file to track current layout
-STATE_FILE="$HOME/.local/state/keyboard-layout"
-mkdir -p "$(dirname "$STATE_FILE")"
-
-# Initialize state file if it doesn't exist
-if [[ ! -f "$STATE_FILE" ]]; then
-  echo "$LAYOUT_PRIMARY" >"$STATE_FILE"
-fi
-
-# Get current layout from state file
+# Get current layout using xkblayout-state if available
 get_current_layout() {
-  cat "$STATE_FILE" 2>/dev/null || echo "$LAYOUT_PRIMARY"
+  if command -v xkblayout-state >/dev/null 2>&1; then
+    # Use xkblayout-state to get the current active layout
+    local current_group
+    current_group=$(xkblayout-state print %c 2>/dev/null)
+    
+    # Map group number to layout name
+    case "$current_group" in
+      0) echo "$LAYOUT_PRIMARY" ;;
+      1) echo "$LAYOUT_SECONDARY" ;;
+      *) echo "$LAYOUT_PRIMARY" ;;  # fallback to primary
+    esac
+  else
+    # Fallback: use first layout from config
+    echo "$LAYOUT_PRIMARY"
+  fi
 }
 
 # Set layout using available tools
 set_layout() {
-  local layout="$1"
-
-  # Simulate Alt+Shift keystroke to trigger Wayfire layout switching
-  if command -v wtype >/dev/null 2>&1; then
-    # Use wtype to send Alt+Shift combination
-    wtype -M alt -M shift -m shift -m alt
-  elif command -v ydotool >/dev/null 2>&1; then
-    # Alternative: use ydotool
-    ydotool key alt:1 shift:1 shift:0 alt:0
-  fi
+  local target_layout="$1"
   
-  # Update state file to track our intended layout
-  echo "$layout" >"$STATE_FILE"
+  if command -v xkblayout-state >/dev/null 2>&1; then
+    # Use xkblayout-state to set layout directly by group number
+    case "$target_layout" in
+      "$LAYOUT_PRIMARY") xkblayout-state set 0 ;;
+      "$LAYOUT_SECONDARY") xkblayout-state set 1 ;;
+    esac
+  else
+    # Fallback: Simulate Alt+Shift keystroke to toggle
+    if command -v wtype >/dev/null 2>&1; then
+      wtype -M alt -M shift -m shift -m alt
+    elif command -v ydotool >/dev/null 2>&1; then
+      ydotool key alt:1 shift:1 shift:0 alt:0
+    fi
+  fi
 }
 
 # Get display name for layout code

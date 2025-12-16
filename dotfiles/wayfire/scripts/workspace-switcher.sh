@@ -14,7 +14,24 @@ fi
 
 # Function to get current workspace
 get_current_workspace() {
-    wlrctl toplevel list 2>/dev/null | grep 'workspace:' | head -1 | sed 's/.*workspace: //' | cut -d' ' -f1 || echo "0"
+    # First try wlrctl
+    local workspace=$(wlrctl toplevel list 2>/dev/null | grep 'workspace:' | head -1 | sed 's/.*workspace: //' | cut -d' ' -f1)
+    
+    # If wlrctl failed or returned empty, try alternative method
+    if [[ -z "$workspace" ]]; then
+        # Try using wayfire socket if available
+        if command -v wf-info >/dev/null 2>&1; then
+            workspace=$(wf-info 2>/dev/null | grep -oP 'workspace.*:\s*\K\d+' | head -1)
+        fi
+        
+        # Still empty? Try reading from wayfire directly
+        if [[ -z "$workspace" ]]; then
+            # Default to workspace 0 if all methods fail
+            workspace="0"
+        fi
+    fi
+    
+    echo "$workspace"
 }
 
 # Function to get workspace name
@@ -36,7 +53,7 @@ switch_to_workspace() {
         wlrctl toplevel focus --workspace "$ws_num" 2>/dev/null || {
             # Fallback: simulate key press for workspace switching
             case "$ws_num" in
-                0|1|2|3|4|5|6|7|8) wtype -M super -k "$((ws_num + 1))" -m super ;;
+                0|1|2|3|4|5|6|7|8) wtype -M Super -k "$((ws_num + 1))" -m Super ;;
             esac
         }
         
