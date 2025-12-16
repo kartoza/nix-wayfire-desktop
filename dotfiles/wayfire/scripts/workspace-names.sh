@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Wayfire workspace name management script
 
-WORKSPACE_NAMES_FILE="$HOME/.config/wayfire/workspace-names.conf"
+WORKSPACE_NAMES_FILE="$(xdg-config-path wayfire/workspace-names.conf 2>/dev/null || echo "$HOME/.config/wayfire/workspace-names.conf")"
 SYSTEM_WORKSPACE_NAMES_FILE="/etc/xdg/wayfire/workspace-names.conf"
 
 # Ensure user config directory exists
@@ -55,7 +55,23 @@ list_names() {
 
 # Get current workspace number
 get_current() {
-    wlrctl toplevel list | grep 'workspace:' | head -1 | sed 's/.*workspace: //' | cut -d' ' -f1
+    # Use wayfire workspace manager for reliable workspace detection
+    if [[ -x "$(command -v wayfire-workspace-manager.sh)" ]]; then
+        wayfire-workspace-manager.sh get
+    else
+        # Fallback to cache file reading
+        local cache_file="$HOME/.cache/wayfire-current-workspace"
+        if [[ -f "$cache_file" ]]; then
+            local workspace=$(cat "$cache_file" 2>/dev/null | tr -d '\n')
+            if [[ "$workspace" =~ ^[0-8]$ ]]; then
+                echo "$workspace"
+                return
+            fi
+        fi
+        
+        # Default to workspace 0 if cache doesn't exist
+        echo "0"
+    fi
 }
 
 case "${1:-}" in

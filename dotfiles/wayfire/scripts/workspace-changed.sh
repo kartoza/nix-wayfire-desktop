@@ -3,8 +3,20 @@
 # Called whenever a workspace is changed
 
 # Get current workspace information
-CURRENT_WS=$(wlrctl toplevel list | grep 'output:' | head -1 | sed 's/.*workspace: //')
-WS_NAME=$(cat ~/.config/wayfire/workspace-names.conf 2>/dev/null | grep "^${CURRENT_WS}=" | cut -d'=' -f2 || echo "Workspace ${CURRENT_WS}")
+# First try to get from command line argument (preferred)
+if [[ -n "$1" ]]; then
+    CURRENT_WS="$1"
+else
+    # Fall back to reading from cache file
+    if [[ -f "$HOME/.cache/wayfire-current-workspace" ]]; then
+        CURRENT_WS=$(cat "$HOME/.cache/wayfire-current-workspace" 2>/dev/null | tr -d '\n')
+    else
+        CURRENT_WS="0"
+    fi
+fi
+
+WS_NAME_FILE="$(xdg-config-path wayfire/workspace-names.conf 2>/dev/null || echo "$HOME/.config/wayfire/workspace-names.conf")"
+WS_NAME=$(cat "$WS_NAME_FILE" 2>/dev/null | grep "^${CURRENT_WS}=" | cut -d'=' -f2 || echo "Workspace ${CURRENT_WS}")
 
 # Log the workspace change
 echo "$(date '+%Y-%m-%d %H:%M:%S') - Changed to workspace: ${CURRENT_WS} (${WS_NAME})" >> ~/.local/state/wayfire-workspace.log

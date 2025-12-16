@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Fuzzel-based workspace switcher for Wayfire
 
-WORKSPACE_NAMES_FILE="$HOME/.config/wayfire/workspace-names.conf"
+WORKSPACE_NAMES_FILE="$(xdg-config-path wayfire/workspace-names.conf 2>/dev/null || echo "$HOME/.config/wayfire/workspace-names.conf")"
 SYSTEM_WORKSPACE_NAMES_FILE="/etc/xdg/wayfire/workspace-names.conf"
 
 # Ensure we have a workspace names file
@@ -12,26 +12,25 @@ if [[ ! -f "$WORKSPACE_NAMES_FILE" ]]; then
     fi
 fi
 
-# Function to get current workspace
+# Function to get current workspace using workspace manager
 get_current_workspace() {
-    # First try wlrctl
-    local workspace=$(wlrctl toplevel list 2>/dev/null | grep 'workspace:' | head -1 | sed 's/.*workspace: //' | cut -d' ' -f1)
-    
-    # If wlrctl failed or returned empty, try alternative method
-    if [[ -z "$workspace" ]]; then
-        # Try using wayfire socket if available
-        if command -v wf-info >/dev/null 2>&1; then
-            workspace=$(wf-info 2>/dev/null | grep -oP 'workspace.*:\s*\K\d+' | head -1)
+    # Use wayfire workspace manager for reliable workspace detection
+    if [[ -x "$(command -v wayfire-workspace-manager.sh)" ]]; then
+        wayfire-workspace-manager.sh get
+    else
+        # Fallback to cache file reading
+        local state_file="$HOME/.cache/wayfire-current-workspace"
+        if [[ -f "$state_file" ]]; then
+            local workspace=$(cat "$state_file" 2>/dev/null | tr -d '\n')
+            if [[ "$workspace" =~ ^[0-8]$ ]]; then
+                echo "$workspace"
+                return
+            fi
         fi
         
-        # Still empty? Try reading from wayfire directly
-        if [[ -z "$workspace" ]]; then
-            # Default to workspace 0 if all methods fail
-            workspace="0"
-        fi
+        # Default to workspace 0 if all methods fail
+        echo "0"
     fi
-    
-    echo "$workspace"
 }
 
 # Function to get workspace name
@@ -49,17 +48,22 @@ get_workspace_name() {
 switch_to_workspace() {
     local ws_num="$1"
     if [[ "$ws_num" =~ ^[0-8]$ ]]; then
-        # Use wlrctl to switch workspace
-        wlrctl toplevel focus --workspace "$ws_num" 2>/dev/null || {
-            # Fallback: simulate key press for workspace switching
-            case "$ws_num" in
-                0|1|2|3|4|5|6|7|8) wtype -M Super -k "$((ws_num + 1))" -m Super ;;
-            esac
-        }
-        
-        # Call workspace changed hook
-        if [[ -x "$(command -v workspace-changed.sh)" ]]; then
-            workspace-changed.sh &
+        # Use wayfire workspace manager for reliable switching
+        if [[ -x "$(command -v wayfire-workspace-manager.sh)" ]]; then
+            wayfire-workspace-manager.sh set "$ws_num"
+        else
+            # Fallback to direct switching
+            local key_num=$((ws_num + 1))
+            wtype -M logo -k "$key_num" -m logo
+            
+            # Update our state cache
+            mkdir -p "$HOME/.cache"
+            echo "$ws_num" > "$HOME/.cache/wayfire-current-workspace"
+            
+            # Call workspace changed hook
+            if [[ -x "$(command -v workspace-changed.sh)" ]]; then
+                workspace-changed.sh "$ws_num" &
+            fi
         fi
     fi
 }

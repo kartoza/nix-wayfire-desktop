@@ -2,28 +2,30 @@
 # Waybar workspace display widget
 # Shows current workspace number and name
 
-WORKSPACE_NAMES_FILE="$HOME/.config/wayfire/workspace-names.conf"
+WORKSPACE_NAMES_FILE="$(xdg-config-path wayfire/workspace-names.conf 2>/dev/null || echo "$HOME/.config/wayfire/workspace-names.conf")"
 
 # Function to get current workspace
 get_current_workspace() {
-    # First try wlrctl
-    local workspace=$(wlrctl toplevel list 2>/dev/null | grep 'workspace:' | head -1 | sed 's/.*workspace: //' | cut -d' ' -f1)
-    
-    # If wlrctl failed or returned empty, try alternative method
-    if [[ -z "$workspace" ]]; then
-        # Try using wayfire socket if available
-        if command -v wf-info >/dev/null 2>&1; then
-            workspace=$(wf-info 2>/dev/null | grep -oP 'workspace.*:\s*\K\d+' | head -1)
+    # Use wayfire workspace manager for reliable workspace detection
+    if [[ -x "$(command -v wayfire-workspace-manager.sh)" ]]; then
+        wayfire-workspace-manager.sh get
+    else
+        # Fallback to cache file reading
+        local cache_file="$HOME/.cache/wayfire-current-workspace"
+        if [[ -f "$cache_file" ]]; then
+            local workspace=$(cat "$cache_file" 2>/dev/null | tr -d '\n')
+            if [[ "$workspace" =~ ^[0-8]$ ]]; then
+                echo "$workspace"
+                return
+            fi
         fi
         
-        # Still empty? Try reading from wayfire directly
-        if [[ -z "$workspace" ]]; then
-            # Default to workspace 0 if all methods fail
-            workspace="0"
-        fi
+        # Default to workspace 0 if cache doesn't exist or is invalid
+        echo "0"
+        # Create cache with default
+        mkdir -p "$(dirname "$cache_file")"
+        echo "0" > "$cache_file"
     fi
-    
-    echo "$workspace"
 }
 
 # Function to get workspace name
