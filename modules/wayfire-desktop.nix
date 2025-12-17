@@ -579,9 +579,13 @@ in {
       text/plain=org.gnome.TextEditor.desktop
       image/jpeg=org.gnome.eog.desktop
       image/png=org.gnome.eog.desktop
+      inode/directory=org.gnome.Nautilus.desktop
+      application/x-gnome-saved-search=org.gnome.Nautilus.desktop
 
       [Added Associations]
       application/pdf=org.gnome.Evince.desktop
+      inode/directory=org.gnome.Nautilus.desktop
+      application/x-gnome-saved-search=org.gnome.Nautilus.desktop
     '';
 
     # Import environment variables into systemd user session
