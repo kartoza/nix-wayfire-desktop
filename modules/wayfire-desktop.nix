@@ -57,9 +57,9 @@ in {
 
       qtTheme = mkOption {
         type = types.str;
-        default = "gnome";
+        default = "qt5ct";
         description =
-          "Qt platform theme to use for Qt applications (gnome, gtk2, kde, fusion)";
+          "Qt platform theme to use for Qt applications (qt5ct, gnome, gtk2, kde, fusion)";
       };
 
       darkTheme = mkOption {
@@ -158,6 +158,9 @@ in {
       brightnessctl # Brightness control for waybar
       clipse # Wayland clipboard manager
       dmenu
+      # Qt theming and configuration tools
+      libsForQt5.qt5ct # Qt5 configuration tool for better theming control
+      libsForQt5.qtstyleplugins # Additional Qt style plugins
       evince
       fuzzel # Application launcher for Wayland
       gnome-disk-utility # GNOME Disks application
@@ -353,6 +356,12 @@ in {
       CLUTTER_BACKEND = "wayland";
       # XWayland fallback
       QT_QPA_PLATFORMTHEME = cfg.qtTheme;
+      
+      # Qt scaling and sizing fixes to prevent dialog compression
+      QT_AUTO_SCREEN_SCALE_FACTOR = "1";
+      QT_ENABLE_HIGHDPI_SCALING = "1";
+      QT_SCALE_FACTOR = toString cfg.fractionalScaling;
+      QT_FONT_DPI = "96";
     };
 
     # GTK theme configuration for GNOME/GTK apps
@@ -486,6 +495,9 @@ in {
       };
       # Fuzzel emoji script - standard location for executables
       "xdg/fuzzel/fuzzel-emoji".source = ../dotfiles/fuzzel/fuzzel-emoji;
+      # Qt5ct configuration for proper dialog sizing
+      "xdg/qt5ct/qt5ct.conf".source = ../dotfiles/qt5ct/qt5ct.conf;
+      "xdg/qt5ct/qss/kartoza-qt-fixes.qss".source = ../dotfiles/qt5ct/qss/kartoza-qt-fixes.qss;
       # GPG agent configuration
       "skel/.gnupg/gpg-agent.conf".text = ''
         pinentry-program ${pkgs.pinentry-gnome3}/bin/pinentry-gnome3

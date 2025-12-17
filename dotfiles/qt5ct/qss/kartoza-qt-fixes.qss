@@ -1,0 +1,122 @@
+/* Qt Stylesheet to fix dialog compression issues */
+/* Ensures proper minimum sizes for dialog widgets */
+
+QDialog {
+    min-width: 400px;
+    min-height: 300px;
+}
+
+/* Radio buttons with proper spacing */
+QRadioButton {
+    min-height: 22px;
+    min-width: 80px;
+    spacing: 8px;
+    margin: 2px;
+}
+
+QRadioButton::indicator {
+    width: 16px;
+    height: 16px;
+    margin-right: 6px;
+}
+
+/* Checkboxes with proper spacing */
+QCheckBox {
+    min-height: 22px;
+    min-width: 80px;
+    spacing: 8px;
+    margin: 2px;
+}
+
+QCheckBox::indicator {
+    width: 16px;
+    height: 16px;
+    margin-right: 6px;
+}
+
+/* Buttons with minimum sizes */
+QPushButton {
+    min-width: 75px;
+    min-height: 28px;
+    padding: 4px 8px;
+    margin: 2px;
+}
+
+/* Input fields */
+QLineEdit {
+    min-height: 24px;
+    padding: 2px 4px;
+}
+
+QSpinBox, QDoubleSpinBox {
+    min-height: 24px;
+    min-width: 60px;
+}
+
+QComboBox {
+    min-height: 24px;
+    min-width: 80px;
+    padding: 2px 4px;
+}
+
+/* List widgets */
+QListWidget, QTreeWidget, QTableWidget {
+    min-height: 120px;
+    min-width: 150px;
+}
+
+/* Group boxes */
+QGroupBox {
+    font-weight: bold;
+    padding-top: 12px;
+    margin: 4px;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 8px;
+    padding: 0 4px 0 4px;
+}
+
+/* Tab widgets */
+QTabWidget::pane {
+    border: 1px solid #c0c0c0;
+    margin-top: 2px;
+}
+
+QTabBar::tab {
+    min-width: 80px;
+    min-height: 24px;
+    padding: 4px 8px;
+    margin-right: 2px;
+}
+
+/* Ensure proper spacing in form layouts */
+QFormLayout {
+    spacing: 8px;
+}
+
+/* Proper spacing for horizontal and vertical layouts */
+QHBoxLayout, QVBoxLayout {
+    spacing: 6px;
+}
+
+/* Grid layout spacing */
+QGridLayout {
+    spacing: 4px;
+}
+
+/* Splitters */
+QSplitter::handle {
+    background-color: #d0d0d0;
+    width: 4px;
+    height: 4px;
+}
+
+QSplitter::handle:horizontal {
+    width: 4px;
+}
+
+QSplitter::handle:vertical {
+    height: 4px;
+}
