@@ -203,7 +203,7 @@ in {
       wl-clipboard
       wlr-randr # Display configuration for wlr compositors
       wlrctl # Wayfire window management and inspection tool
-      wshowkeys # On-screen key display for Wayland
+      wshowkeys # On-screen key display for Wayland (setuid wrapper configured below)
       wtype # Wayland typing utility
       wev # Wayland event viewer for debugging
       xdg-desktop-portal-gtk
@@ -565,6 +565,14 @@ in {
 
     # Configure PAM for sudo to maintain keyring access
     security.pam.services.sudo = { enableGnomeKeyring = true; };
+
+    # Configure setuid wrapper for wshowkeys to capture keyboard events
+    security.wrappers.wshowkeys = {
+      owner = "root";
+      group = "input";
+      permissions = "u+s,g+x";
+      source = "${pkgs.wshowkeys}/bin/wshowkeys";
+    };
 
     xdg.portal = {
       enable = true;
