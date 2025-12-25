@@ -14,6 +14,8 @@ border-radius=10
 border-color=#DF9E2F
 default-timeout=3000
 group-by=summary
+icons-paths=/run/current-system/sw/share/icons/Papirus,/run/current-system/sw/share/icons/Papirus-Dark,/run/current-system/sw/share/icons/Papirus-Light,/run/current-system/sw/share/icons/Adwaita,/run/current-system/sw/share/icons/
+icons=1
 on-notify=exec mpv $(xdg-config-path mako/sounds/notification.wav)
 
 # Enable action buttons for notifications (required for bluetooth pairing)
