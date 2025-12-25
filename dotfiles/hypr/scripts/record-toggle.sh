@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # -*- coding: utf-8 -*-
-# Screen recording toggle script for Wayfire with multi-monitor support
+# Screen recording toggle script for Hyprland with multi-monitor support
 # Part of Kartoza NixOS configuration
 
 PIDFILE="/tmp/wf-recorder.pid"
@@ -24,7 +24,7 @@ else
   # Get the focused output (monitor)
   focused_output=$(swaymsg -t get_workspaces | jq -r '.[] | select(.focused==true).output' 2>/dev/null)
 
-  # Fallback to wayfire method if swaymsg doesn't work
+  # Fallback to hyprland method if swaymsg doesn't work
   if [ -z "$focused_output" ] || [ "$focused_output" == "null" ]; then
     # Get all outputs and use the first one as fallback
     focused_output=$(wlr-randr | grep "^[A-Z]" | head -1 | cut -d' ' -f1)

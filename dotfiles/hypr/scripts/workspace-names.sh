@@ -55,13 +55,21 @@ list_names() {
 
 # Get current workspace number
 get_current() {
-    # Use hyprctl to get current workspace
-    local current_workspace=$(hyprctl activeworkspace -j 2>/dev/null | jq -r '.id')
-    
-    # Convert to 0-based indexing (Hyprland uses 1-based)
-    if [[ "$current_workspace" =~ ^[1-9]$ ]]; then
-        echo $((current_workspace - 1))
+    # Use hyprland workspace manager for reliable workspace detection
+    if [[ -x "$(command -v hyprland-workspace-manager.sh)" ]]; then
+        hyprland-workspace-manager.sh get
     else
+        # Fallback to cache file reading
+        local cache_file="$HOME/.cache/hyprland-current-workspace"
+        if [[ -f "$cache_file" ]]; then
+            local workspace=$(cat "$cache_file" 2>/dev/null | tr -d '\n')
+            if [[ "$workspace" =~ ^[0-8]$ ]]; then
+                echo "$workspace"
+                return
+            fi
+        fi
+        
+        # Default to workspace 0 if cache doesn't exist
         echo "0"
     fi
 }

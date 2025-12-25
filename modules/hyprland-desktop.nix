@@ -128,7 +128,7 @@ in {
       xdgConfigResolver
       # Default icon theme (Papirus) - can be overridden by kartoza.nix or other configs
       papirus-icon-theme
-      # Essential fonts for waybar and wayfire
+      # Essential fonts for waybar and hyprland
       font-awesome # For waybar icons (required for waybar symbols)
       noto-fonts # Good fallback font family
       noto-fonts-cjk-sans # CJK character support
@@ -185,7 +185,7 @@ in {
       swayidle # Idle management for Wayland
       swaylock-effects # Screen locker with effects for Wayland
       swayr # Visual window switcher with overlay
-      swww # Wallpaper setter (works with Wayfire too)
+      swww # Wallpaper setter (works with Hyprland too)
       util-linux # Provides rfkill tool to enable/disable wireless devices
       waybar # Bar panel for Wayland
       hyprpaper # Wallpaper utility for Hyprland
@@ -208,7 +208,7 @@ in {
       vanilla-dmz # Default cursor theme
       # Image processing for wallpapers
       imagemagick # For creating default wallpaper
-      # Deploy script for system-wide Wayfire config management
+      # Deploy script for system-wide Hyprland config management
       jq # Required for waybar config building
       # XDG config path helper for use in config files
       (writeScriptBin "xdg-config-path" ''
@@ -254,7 +254,7 @@ in {
       (writeScriptBin "unlock-keyring" ''
         #!/usr/bin/env bash
 
-        # Script to unlock GNOME Keyring at Wayfire login
+        # Script to unlock GNOME Keyring at Hyprland login
         # This ensures the keyring is available for SSH keys and other secrets
 
         # Check if gnome-keyring-daemon is already running
@@ -420,7 +420,7 @@ in {
       };
       "xdg/hypr/scripts".source = ../dotfiles/hypr/scripts;
       # Hyprland workspace names configuration  
-      "xdg/hypr/workspace-names.conf".source = ../dotfiles/wayfire/workspace-names.conf;
+      "xdg/hypr/workspace-names.conf".source = ../dotfiles/hypr/workspace-names.conf;
       # Waybar configuration - standard XDG location
       "xdg/waybar/style.css".source = ../dotfiles/waybar/style.css;
       # Build combined waybar config from modular JSON files  
@@ -433,12 +433,11 @@ in {
           # Use generic base config and add all modules including taskbar
           cat "$src/00-base.json" > config.json
 
-          # Merge all other config fragments except wayfire-specific ones
+          # Merge all other config fragments except base files
           for file in "$src"/*.json; do
             filename=$(basename "$file")
-            # Skip base files and wayfire-specific modules
-            if [[ "$filename" != "00-base.json" && "$filename" != "00-base-wayfire.json" &&
-                  "$filename" != "90-wayfire-"* ]]; then
+            # Skip base files
+            if [[ "$filename" != "00-base.json" && "$filename" != "00-base-hyprland.json" ]]; then
               echo "Merging $filename"
               jq -s '.[0] * .[1]' config.json "$file" > temp.json
               mv temp.json config.json

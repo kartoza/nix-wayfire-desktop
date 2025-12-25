@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# wshowkeys toggle script for Wayfire
+# wshowkeys toggle script for Hyprland
 # Toggles wshowkeys on-screen key display on/off
 
 PIDFILE="$XDG_RUNTIME_DIR/wshowkeys.pid"

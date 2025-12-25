@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Setup wallpaper for Wayfire
+# Setup wallpaper for Hyprland
 # This script ensures there's a wallpaper available for swww
 
 WALLPAPER_DIR="$HOME/Pictures"

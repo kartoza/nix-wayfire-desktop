@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Script to unlock GNOME Keyring at Wayfire login
+# Script to unlock GNOME Keyring at Hyprland login
 # This ensures the keyring is available for SSH keys and other secrets
 
 # Check if gnome-keyring-daemon is already running

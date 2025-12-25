@@ -7,9 +7,10 @@
 if [[ -n "$1" ]]; then
     CURRENT_WS="$1"
 else
-    # Fall back to getting current workspace from hyprctl
-    CURRENT_WS=$(hyprctl activeworkspace -j 2>/dev/null | jq -r '.id' | awk '{print $1-1}')
-    if [[ ! "$CURRENT_WS" =~ ^[0-8]$ ]]; then
+    # Fall back to reading from cache file
+    if [[ -f "$HOME/.cache/hyprland-current-workspace" ]]; then
+        CURRENT_WS=$(cat "$HOME/.cache/hyprland-current-workspace" 2>/dev/null | tr -d '\n')
+    else
         CURRENT_WS="0"
     fi
 fi

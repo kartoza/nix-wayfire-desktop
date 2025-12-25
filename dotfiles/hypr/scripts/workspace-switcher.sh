@@ -12,15 +12,23 @@ if [[ ! -f "$WORKSPACE_NAMES_FILE" ]]; then
     fi
 fi
 
-# Function to get current workspace using Hyprland
+# Function to get current workspace using workspace manager
 get_current_workspace() {
-    # Use hyprctl to get current workspace
-    local current_workspace=$(hyprctl activeworkspace -j | jq -r '.id' 2>/dev/null)
-    
-    # Convert to 0-based indexing (Hyprland uses 1-based)
-    if [[ "$current_workspace" =~ ^[1-9]$ ]]; then
-        echo $((current_workspace - 1))
+    # Use hyprland workspace manager for reliable workspace detection
+    if [[ -x "$(command -v hyprland-workspace-manager.sh)" ]]; then
+        hyprland-workspace-manager.sh get
     else
+        # Fallback to cache file reading
+        local state_file="$HOME/.cache/hyprland-current-workspace"
+        if [[ -f "$state_file" ]]; then
+            local workspace=$(cat "$state_file" 2>/dev/null | tr -d '\n')
+            if [[ "$workspace" =~ ^[0-8]$ ]]; then
+                echo "$workspace"
+                return
+            fi
+        fi
+        
+        # Default to workspace 0 if all methods fail
         echo "0"
     fi
 }
@@ -40,15 +48,22 @@ get_workspace_name() {
 switch_to_workspace() {
     local ws_num="$1"
     if [[ "$ws_num" =~ ^[0-8]$ ]]; then
-        # Convert to 1-based indexing for Hyprland
-        local hypr_workspace=$((ws_num + 1))
-        
-        # Use hyprctl to switch workspace
-        hyprctl dispatch workspace "$hypr_workspace"
-        
-        # Call workspace changed hook
-        if [[ -x "$(command -v workspace-changed.sh)" ]]; then
-            workspace-changed.sh "$ws_num" &
+        # Use hyprland workspace manager for reliable switching
+        if [[ -x "$(command -v hyprland-workspace-manager.sh)" ]]; then
+            hyprland-workspace-manager.sh set "$ws_num"
+        else
+            # Fallback to direct switching
+            local key_num=$((ws_num + 1))
+            wtype -M logo -k "$key_num" -m logo
+            
+            # Update our state cache
+            mkdir -p "$HOME/.cache"
+            echo "$ws_num" > "$HOME/.cache/hyprland-current-workspace"
+            
+            # Call workspace changed hook
+            if [[ -x "$(command -v workspace-changed.sh)" ]]; then
+                workspace-changed.sh "$ws_num" &
+            fi
         fi
     fi
 }

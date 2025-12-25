@@ -3,7 +3,9 @@
     "allow": [
       "Bash(nix flake check:*)",
       "Bash(./dotfiles/wayfire/scripts/workspace-names.sh:*)",
-      "Bash(hyprctl:*)"
+      "Bash(hyprctl:*)",
+      "Bash(mv:*)",
+      "Bash(rm:*)"
     ],
     "deny": [],
     "ask": []
