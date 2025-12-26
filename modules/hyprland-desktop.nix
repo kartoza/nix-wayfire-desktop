@@ -8,7 +8,6 @@ let
   # Use the icon theme from the module configuration
   iconThemeName = cfg.iconTheme;
 
-
 in {
   options = {
     kartoza.hyprland-desktop = {
@@ -74,14 +73,16 @@ in {
         type = types.listOf types.str;
         default = [ "us" "pt" ];
         example = [ "us" "de" "fr" ];
-        description = "List of keyboard layouts (first layout is default, others accessible via Alt+Shift toggle)";
+        description =
+          "List of keyboard layouts (first layout is default, others accessible via Alt+Shift toggle)";
       };
 
       wallpaper = mkOption {
         type = types.str;
         default = "/etc/kartoza-wallpaper.png";
         example = "/home/user/Pictures/my-wallpaper.jpg";
-        description = "Path to wallpaper image used for both desktop background and swaylock screen";
+        description =
+          "Path to wallpaper image used for both desktop background and swaylock screen";
       };
 
       greetdTheme = mkOption {
@@ -243,7 +244,7 @@ in {
       CLUTTER_BACKEND = "wayland";
       # XWayland fallback
       QT_QPA_PLATFORMTHEME = cfg.qtTheme;
-      
+
       # Qt scaling and sizing fixes to prevent dialog compression
       QT_AUTO_SCREEN_SCALE_FACTOR = "1";
       QT_ENABLE_HIGHDPI_SCALING = "1";
@@ -275,6 +276,7 @@ in {
     environment.etc = {
       # Deploy entire Hyprland configuration folder to /etc/xdg/hypr
       "xdg/hypr".source = ../dotfiles/hypr;
+      "xdg/ml4w".source = ../dotfiles/ml4w;
       "xdg/waybar/style.css".source = ../dotfiles/waybar/style.css;
       # Build combined waybar config from modular JSON files  
       "xdg/waybar/config" = {
@@ -307,7 +309,8 @@ in {
       # Mako notification config - standard XDG location
       "xdg/mako/kartoza".source = ../dotfiles/mako/kartoza;
       # Notification sound file
-      "xdg/mako/sounds/notification.wav".source = ../resources/sounds/notification.wav;
+      "xdg/mako/sounds/notification.wav".source =
+        ../resources/sounds/notification.wav;
       # nwg-launchers configs - standard XDG location
       "xdg/nwg-launchers/nwggrid/style.css".source =
         ../dotfiles/nwggrid/style.css;
@@ -326,18 +329,17 @@ in {
         text = let
           baseConfig = lib.readFile ../dotfiles/swaylock/config;
           # Replace wallpaper path with configured wallpaper
-          configWithWallpaper = lib.replaceStrings [
-            "image=/etc/kartoza-wallpaper.png"
-          ] [
-            "image=${cfg.wallpaper}"
-          ] baseConfig;
+          configWithWallpaper =
+            lib.replacewStrings [ "image=/etc/kartoza-wallpaper.png" ]
+            [ "image=${cfg.wallpaper}" ] baseConfig;
         in configWithWallpaper;
       };
       # Fuzzel emoji script - standard location for executables
       "xdg/fuzzel/fuzzel-emoji".source = ../dotfiles/fuzzel/fuzzel-emoji;
       # Qt5ct configuration for proper dialog sizing
       "xdg/qt5ct/qt5ct.conf".source = ../dotfiles/qt5ct/qt5ct.conf;
-      "xdg/qt5ct/qss/kartoza-qt-fixes.qss".source = ../dotfiles/qt5ct/qss/kartoza-qt-fixes.qss;
+      "xdg/qt5ct/qss/kartoza-qt-fixes.qss".source =
+        ../dotfiles/qt5ct/qss/kartoza-qt-fixes.qss;
       # GPG agent configuration
       "skel/.gnupg/gpg-agent.conf".text = ''
         pinentry-program ${pkgs.pinentry-gnome3}/bin/pinentry-gnome3
@@ -488,9 +490,7 @@ in {
           path = cfg.wallpaper;
           fit = "Cover";
         };
-        appearance = {
-          greeting_msg = "Welcome to Kartoza";
-        };
+        appearance = { greeting_msg = "Welcome to Kartoza"; };
         GTK = {
           application_prefer_dark_theme = mkDefault cfg.darkTheme;
           cursor_theme_name = mkDefault cfg.cursorTheme;
