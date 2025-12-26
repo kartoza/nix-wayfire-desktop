@@ -222,8 +222,8 @@ echo "1=Slack" >> ~/.config/hypr/workspace-names.conf
 
 ## Integration Notes
 
-- Module configures complete Wayland environment (no X11 dependencies)
-- Uses greetd for display management (no GDM/SDDM needed)
+- Module configures complete Wayland environment
+- Uses greetd with regreet greeter for display management with Kartoza theming
 - Includes screen sharing support via xdg-desktop-portal-hyprland
 - PAM integration for keyring unlock on login and screen unlock
 - Environment variables set for proper Wayland app compatibility

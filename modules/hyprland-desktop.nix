@@ -84,11 +84,11 @@ in {
         description = "Path to wallpaper image used for both desktop background and swaylock screen";
       };
 
-      sddmTheme = mkOption {
+      greetdTheme = mkOption {
         type = types.str;
-        default = "kartoza";
-        example = "astronaut";
-        description = "SDDM theme to use (kartoza for Kartoza branding, astronaut for default astronaut theme)";
+        default = "regreet";
+        example = "regreet";
+        description = "Greetd greeter to use (regreet for GTK-based greeter)";
       };
     };
   };
@@ -111,8 +111,8 @@ in {
     environment.systemPackages = with pkgs; [
       # Default icon theme (Papirus) - can be overridden by kartoza.nix or other configs
       papirus-icon-theme
-      # SDDM theme
-      sddm-astronaut
+      # Greetd and regreet
+      greetd.regreet
       # Essential fonts for waybar and hyprland
       font-awesome # For waybar icons (required for waybar symbols)
       noto-fonts # Good fallback font family
@@ -393,8 +393,6 @@ in {
         keyserver hkps://keys.openpgp.org
         keyserver-options auto-key-retrieve
       '';
-      # SDDM Kartoza theme
-      "sddm/themes/kartoza".source = ../dotfiles/sddm/kartoza;
     };
 
     # Required for screen sharing
@@ -425,8 +423,8 @@ in {
       pinentryPackage = pkgs.pinentry-gnome3;
     };
 
-    # Configure PAM for SDDM to unlock gnome-keyring on login
-    security.pam.services.sddm = {
+    # Configure PAM for greetd to unlock gnome-keyring on login
+    security.pam.services.greetd = {
       enableGnomeKeyring = true;
       gnupg.enable = true;
     };
@@ -515,23 +513,34 @@ in {
       };
     };
 
-    # Enable X11 for SDDM (login manager runs in X11, Hyprland runs in Wayland after login)
-    services.xserver.enable = true;
-    
-    # Enable SDDM display manager with theme configuration
-    services.displayManager.sddm = {
+    # Enable greetd display manager with regreet greeter
+    services.greetd = {
       enable = true;
-      theme = cfg.sddmTheme;
       settings = {
-        # Enable theme configuration
-        Theme = {
-          Current = cfg.sddmTheme;
-          CursorTheme = cfg.cursorTheme;
-          CursorSize = toString cfg.cursorSize;
+        default_session = {
+          command = "${pkgs.greetd.regreet}/bin/regreet";
+          user = "greeter";
         };
-        # User settings
-        Users = {
-          DefaultPath = "/run/current-system/sw/bin";
+      };
+    };
+
+    # Configure regreet
+    programs.regreet = {
+      enable = true;
+      settings = {
+        background = {
+          path = cfg.wallpaper;
+          fit = "Cover";
+        };
+        appearance = {
+          greeting_msg = "Welcome to Kartoza";
+        };
+        GTK = {
+          application_prefer_dark_theme = mkDefault cfg.darkTheme;
+          cursor_theme_name = mkDefault cfg.cursorTheme;
+          cursor_theme_size = mkDefault cfg.cursorSize;
+          icon_theme_name = mkDefault iconThemeName;
+          theme_name = mkDefault cfg.gtkTheme;
         };
       };
     };

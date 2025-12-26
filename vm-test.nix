@@ -28,12 +28,9 @@
     # Display scaling configuration
     fractionalScaling = 1.0; # 100% scaling for VM
 
-    # Per-display scaling (useful for multi-monitor setups)
+    # Per-display scaling - configure for VM display
     displayScaling = {
-      # Example configuration - these displays won't exist in VM but shows usage
-      "eDP-1" = 1.0; # Laptop display at 100%
-      "DP-1" = 1.0; # External monitor at 100%
-      "HDMI-1" = 1.0; # External monitor at 100%
+      "Virtual-1" = 1.0; # QEMU virtual display
     };
 
     # Qt application theming
@@ -63,9 +60,11 @@
     };
     qemu.options = [
       "-vga virtio"
-      "-display gtk,gl=on,grab-on-hover=on"
+      "-display gtk,grab-on-hover=on,show-cursor=on"
       "-device virtio-tablet-pci"
       "-device virtio-keyboard-pci"
+      "-device virtio-serial-pci"
+      "-M accel=kvm"
     ];
   };
 
@@ -108,15 +107,10 @@
   ];
 
   # Auto-login for convenience in VM testing
-  services.greetd.settings = {
-    default_session = lib.mkForce {
-      command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --cmd 'Hyprland --config /etc/xdg/hypr/hyprland.conf'";
-      user = "greeter";
-    };
-    initial_session = {
-      command = "Hyprland --config /etc/xdg/hypr/hyprland.conf";
-      user = "testuser";
-    };
+  # Note: Using SDDM instead of greetd as per module configuration
+  services.displayManager.autoLogin = {
+    enable = true;
+    user = "testuser";
   };
 
   system.stateVersion = "25.05";
