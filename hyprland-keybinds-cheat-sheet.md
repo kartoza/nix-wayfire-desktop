@@ -1,146 +1,149 @@
 # Hyprland Keybinds Cheat Sheet
 
-## 🪟 Window Management
-
-| Keybind | Action |
-|---------|--------|
-| `Alt + F4` | Close window |
-| `Super + F` | Toggle fullscreen |
-| `Super + M` | Toggle maximize |
-| `Super + D` | Show/hide desktop |
-
-## 🎯 Focus & Movement
-
-| Keybind | Action |
-|---------|--------|
-| `Super + H/J/K/L` | Focus left/down/up/right |
-| `Super + Mouse Left` | Move window |
-| `Super + Mouse Right` | Resize window |
-| `Shift + Super + Left/Right/Up/Down` | Focus change directionally |
+*Based on ML4W-inspired configuration with secure clipboard integration*
 
 ## 📱 Applications
 
 | Keybind | Action |
 |---------|--------|
-| `Super + Enter` | Terminal (kitty) |
-| `Super + Space` | App launcher (fuzzel) |
-| `Super + E` | File manager (mc in kitty) |
-| `Super + .` | Emoji picker |
-| `Super + U` | Color picker |
-| `Super + V` | Clipboard manager |
-| `Ctrl + Alt + L` | Lock screen |
-| `Ctrl + Alt + S` | Suspend |
+| `Super + Enter` | Open terminal |
+| `Super + B` | Open browser |
+| `Super + E` | Open file manager |
+| `Super + Ctrl + E` | Open emoji picker |
+| `Super + Ctrl + C` | Open calculator |
+| `Super + Ctrl + Return` | Open application launcher |
+| `F11` | Calculator (function key) |
+| `F12` | Lock screen (function key) |
 
-## 🖼️ Screenshots & Recording
-
-| Keybind | Action |
-|---------|--------|
-| `Print` | Full screen screenshot |
-| `Shift + Print` | Interactive screenshot |
-| `Ctrl + 4` | Screenshot area with Gradia |
-| `Ctrl + 5` | Full screenshot with Gradia |
-| `Ctrl + 6` | Toggle screen recording |
-| `Alt + Super + Middle Mouse` | Capture view under cursor |
-
-## 📺 Media & Volume
+## 🪟 Window Management
 
 | Keybind | Action |
 |---------|--------|
-| `Volume Up/Down` | Adjust volume |
-| `Mute` | Toggle mute |
-| `Brightness Up/Down` | Adjust brightness |
-| `Play/Pause` | Toggle playback |
-| `Next/Previous` | Media controls |
+| `Super + Q` | Kill active window |
+| `Super + Shift + Q` | Force quit window and all instances |
+| `Super + F` | Toggle fullscreen |
+| `Super + M` | Maximize window |
+| `Super + T` | Toggle floating mode |
+| `Super + Shift + T` | Toggle all windows floating |
+| `Super + J` | Toggle split |
+| `Super + G` | Toggle window group |
+| `Super + K` | Swap split |
+
+## 🎯 Focus & Movement
+
+| Keybind | Action |
+|---------|--------|
+| `Super + Arrow Keys` | Move focus (left/right/up/down) |
+| `Super + Mouse Left` | Move window |
+| `Super + Mouse Right` | Resize window |
+| `Super + Shift + Arrow Keys` | Resize window with keyboard |
+| `Super + Alt + Arrow Keys` | Swap windows |
+| `Alt + Tab` | Cycle between windows |
+
+## 🖼️ Screenshots
+
+| Keybind | Action |
+|---------|--------|
+| `Super + Print` | Take screenshot |
+| `Super + Alt + F` | Instant fullscreen screenshot |
+| `Super + Alt + S` | Instant area screenshot |
+
+## 📺 Media & Volume (Function Keys)
+
+| Keybind | Action |
+|---------|--------|
+| `F2/F3` | Brightness down/up |
+| `F10/F11/F12` | Volume down/mute/up |
+| `XF86AudioPlay/Pause` | Media play/pause |
+| `XF86AudioNext/Prev` | Media next/previous |
+| `XF86AudioMicMute` | Toggle microphone |
 
 ## 🎛️ Workspaces
 
 | Keybind | Action |
 |---------|--------|
-| `Super + 1-9` | Switch to workspace |
-| `Super + Shift + 1-9` | Move window to workspace |
-| `Ctrl + Super + Left/Right/Up/Down` | Navigate workspace grid |
-| `Super + Shift + Ctrl + Left/Right/Up/Down` | Move window in workspace grid |
-| `Alt + Shift + Super + Left/Right/Up` | Move window between workspaces |
+| `Super + 1-9, 0` | Switch to workspace 1-10 |
+| `Super + Shift + 1-9, 0` | Move window to workspace 1-10 |
+| `Super + Ctrl + 1-9, 0` | Move ALL windows to workspace 1-10 |
+| `Super + Tab` | Next workspace |
+| `Super + Shift + Tab` | Previous workspace |
+| `Super + Mouse Scroll` | Navigate workspaces |
+| `Super + Ctrl + Down` | Open next empty workspace |
 
-## 🔄 Window Switching
-
-| Keybind | Action |
-|---------|--------|
-| `Alt + Tab` | Fast switcher |
-| `Alt + Shift + Esc` | Fast switcher backward |
-| `Alt + Tab` | Visual switcher (all workspaces) |
-| `Alt + Shift + Tab` | Visual switcher previous |
-
-## 📐 Grid Layout (Tiling)
+## 🔄 System Actions
 
 | Keybind | Action |
 |---------|--------|
-| `Super + Up` | Center/top window |
-| `Super + Down/KP0` | Restore window |
-| `Super + Left` | Snap left |
-| `Super + Right/KP6` | Snap right |
-| `Super + KP1` | Bottom left |
-| `Super + KP2` | Bottom center |
-| `Super + KP3` | Bottom right |
-| `Super + Delete` | Top left |
-| `Super + Page Down` | Top right |
-| `Super + End` | Center |
+| `Super + Ctrl + R` | Reload Hyprland configuration |
+| `Super + Shift + R` | Reload hyprland config (script) |
+| `Super + Shift + A` | Toggle animations |
+| `Super + Ctrl + Q` | Open logout menu |
+| `Super + Ctrl + L` | Lock screen |
 
-## 🎨 Visual Effects
+## 📋 Clipboard & Tools
 
 | Keybind | Action |
 |---------|--------|
-| `Super + E` | Expo view (workspace overview) |
-| `Ctrl + Super + Mouse Left` | Cube rotation |
-| `Ctrl + Super + H/L` | Rotate cube left/right |
-| `Ctrl + Super + F` | Fisheye effect |
-| `Super + I` | Invert colors |
-| `Alt + Super + Mouse` | Adjust transparency |
-| `Super + P` | Scale view (window overview) |
-| `Super + W` | Scale view all workspaces |
+| `Super + V` | **Secure clipboard history** (clipse + fuzzel) |
+| `Super + Ctrl + K` | Show keybindings |
+| `Ctrl + Tab` | Window focus menu |
 
-## ⚙️ System & Tools
+## 🎨 Wallpaper & Themes
 
 | Keybind | Action |
 |---------|--------|
-| `Super + Shift + R` | Reload Hyprland config |
-| `Shift + Super + I` | Toggle idle |
-| `Super + O` | Switch output/monitor |
-| `Shift + Super + O` | Move window to next monitor |
-| `Ctrl + Super + H` | Hide cursor |
-| `Alt + Super + S` | Show repaint |
+| `Super + Shift + W` | Random wallpaper |
+| `Super + Ctrl + W` | Open wallpaper selector |
+| `Super + Alt + W` | Start wallpaper automation |
+| `Super + Ctrl + T` | Waybar theme switcher |
+| `Ctrl + Alt + T` | Theme selector |
 
-## 🔧 Advanced Window Management
-
-| Keybind | Action |
-|---------|--------|
-| `Super + T` | Toggle simple tile mode |
-| `Ctrl + Super + Right Mouse` | 3D window rotation |
-| `Shift + Super + Right Mouse` | 3D rotation (alternative) |
-| `Ctrl + Super + R` | Reset window rotation |
-| `Shift + Super + R` | Reset single window rotation |
-| `Alt + Ctrl + Super + G` | Ghost toggle |
-
-## 🔧 Annotations & Drawing
+## 📊 Waybar & Interface
 
 | Keybind | Action |
 |---------|--------|
-| `Alt + Super + Left Mouse` | Draw annotations |
-| `Alt + Super + C` | Clear workspace annotations |
+| `Super + Shift + B` | Reload waybar |
+| `Super + Ctrl + B` | Toggle waybar |
 
-## 🔍 Zoom & Magnification
-
-| Keybind | Action |
-|---------|--------|
-| `Super + Mouse Scroll` | Zoom in/out |
-| `Alt + Super + M` | Magnifier toggle |
-| `Ctrl + Super + Left/Right/Up/Down` | Window zoom controls |
-
-## 🔄 Autorotation (iio)
+## 🎮 Gaming & Effects
 
 | Keybind | Action |
 |---------|--------|
-| `Ctrl + Super + Up` | Rotate display up |
-| `Ctrl + Super + Down` | Rotate display down |
-| `Ctrl + Super + Left` | Rotate display left |
-| `Ctrl + Super + Right` | Rotate display right |
+| `Super + Alt + G` | Toggle game mode |
+| `Super + Shift + H` | Launch Hyprshade |
+
+## 🖥️ Display & Zoom
+
+| Keybind | Action |
+|---------|--------|
+| `Super + Shift + Mouse Scroll` | Zoom in/out |
+| `Super + Shift + Z` | Reset zoom |
+
+## 📂 Sidepad & Navigation
+
+| Keybind | Action |
+|---------|--------|
+| `Super + Ctrl + Right` | Open sidepad |
+| `Super + Ctrl + Left` | Close sidepad |
+| `Super + S` | Initialize sidepad |
+| `Super + Shift + S` | Select sidepad |
+
+## ⚙️ Settings & Configuration
+
+| Keybind | Action |
+|---------|--------|
+| `Super + Ctrl + S` | Open ML4W settings app |
+| `XF86Tools` | Open ML4W settings (function key) |
+
+## 🔒 Security Features
+
+| Feature | Details |
+|---------|---------|
+| **Secure Clipboard** | Uses `clipse` for encrypted clipboard storage |
+| **Fuzzel Interface** | Beautiful popup with numbered entries |
+| **XDG Config Support** | User configs override system configs |
+| **Keyring Integration** | Automatic unlock on login and screen unlock |
+
+---
+
+**Note**: This configuration prioritizes security with encrypted clipboard storage via `clipse` while maintaining an intuitive fuzzel interface. The `Super + V` clipboard manager provides both security and usability.
