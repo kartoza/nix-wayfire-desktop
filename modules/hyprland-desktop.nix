@@ -340,6 +340,9 @@ in {
       "xdg/qt5ct/qt5ct.conf".source = ../dotfiles/qt5ct/qt5ct.conf;
       "xdg/qt5ct/qss/kartoza-qt-fixes.qss".source =
         ../dotfiles/qt5ct/qss/kartoza-qt-fixes.qss;
+      # Hyprshell configuration
+      "xdg/hyprshell/config.ron".source = ../dotfiles/hyprshell/config.ron;
+      "xdg/hyprshell/styles.css".source = ../dotfiles/hyprshell/styles.css;
       # GPG agent configuration
       "skel/.gnupg/gpg-agent.conf".text = ''
         pinentry-program ${pkgs.pinentry-gnome3}/bin/pinentry-gnome3
