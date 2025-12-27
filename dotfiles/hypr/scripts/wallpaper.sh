@@ -6,13 +6,13 @@
 #                /_/       /_/             
 
 # Source library.sh
-source $(xdg-config-resolve ml4w/library.sh)
+source /etc/xdg/ml4w/library.sh
 
 # -----------------------------------------------------
 # Check to use wallpaper cache
 # -----------------------------------------------------
 
-if [ -f $(xdg-config-resolve ml4w/settings/wallpaper_cache) ]; then
+if [ -f /etc/xdg/ml4w/settings/wallpaper_cache ]; then
     use_cache=1
     _writeLog "Using Wallpaper Cache"
 else

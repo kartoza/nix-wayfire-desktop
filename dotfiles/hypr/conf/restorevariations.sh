@@ -14,25 +14,25 @@ echo "Your customized variation will not be overwritten or deleted."
 if gum confirm "Do you want to restore all variations to the default values?"; then
     echo
 
-    echo "source = /etc/xdg/hypr/conf/keybindings/default.conf" >$(xdg-config-resolve hypr/conf/keybinding.conf)
+    echo "source = /etc/xdg/hypr/conf/keybindings/default.conf" >/etc/xdg/hypr/conf/keybinding.conf
     echo "Hyprland keybinding.conf restored!"
 
-    echo "source = /etc/xdg/hypr/conf/environments/default.conf" >$(xdg-config-resolve hypr/conf/environment.conf)
+    echo "source = /etc/xdg/hypr/conf/environments/default.conf" >/etc/xdg/hypr/conf/environment.conf
     echo "Hyprland environment.conf restored!"
 
-    echo "source = /etc/xdg/hypr/conf/windowrules/default.conf" >$(xdg-config-resolve hypr/conf/windowrule.conf)
+    echo "source = /etc/xdg/hypr/conf/windowrules/default.conf" >/etc/xdg/hypr/conf/windowrule.conf
     echo "Hyprland windowrule.conf restored!"
 
-    echo "source = /etc/xdg/hypr/conf/animations/default.conf" >$(xdg-config-resolve hypr/conf/animation.conf)
+    echo "source = /etc/xdg/hypr/conf/animations/default.conf" >/etc/xdg/hypr/conf/animation.conf
     echo "Hyprland animation.conf restored!"
 
-    echo "source = /etc/xdg/hypr/conf/decorations/default.conf" >$(xdg-config-resolve hypr/conf/decoration.conf)
+    echo "source = /etc/xdg/hypr/conf/decorations/default.conf" >/etc/xdg/hypr/conf/decoration.conf
     echo "Hyprland decoration.conf restored!"
 
-    echo "source = /etc/xdg/hypr/conf/windows/default.conf" >$(xdg-config-resolve hypr/conf/window.conf)
+    echo "source = /etc/xdg/hypr/conf/windows/default.conf" >/etc/xdg/hypr/conf/window.conf
     echo "Hyprland window.conf restored!"
 
-    echo "source = /etc/xdg/hypr/conf/monitors/default.conf" >$(xdg-config-resolve hypr/conf/monitor.conf)
+    echo "source = /etc/xdg/hypr/conf/monitors/default.conf" >/etc/xdg/hypr/conf/monitor.conf
     echo "Hyprland monitor.conf restored!"
 
     echo

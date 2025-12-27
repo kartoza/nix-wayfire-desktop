@@ -12,7 +12,6 @@ if [ -f "$PIDFILE" ] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
   # wshowkeys is running, kill it
   pkill wshowkeys
   rm -f "$PIDFILE"
-  notify-send "Key Display" "On-screen keys disabled" --icon=input-keyboard --urgency=low
   echo "disabled"
 else
   # wshowkeys is not running, start it with Kartoza theming
@@ -28,6 +27,5 @@ else
     -s "#ffb59d" &
 
   echo $! >"$PIDFILE"
-  notify-send "Key Display" "On-screen keys enabled" --icon=input-keyboard --urgency=low
   echo "enabled"
 fi

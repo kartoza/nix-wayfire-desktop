@@ -9,13 +9,13 @@
 # -----------------------------------------------------
 # Get keybindings location based on variation
 # -----------------------------------------------------
-config_file=$(<$(xdg-config-resolve hypr/conf/keybinding.conf))
+config_file=$(</etc/xdg/hypr/conf/keybinding.conf)
 config_file=${config_file//source = ~//home/$USER}
 
 # -----------------------------------------------------
 # Load Launcher
 # -----------------------------------------------------
-launcher=$(cat $(xdg-config-resolve ml4w/settings/launcher))
+launcher=$(cat /etc/xdg/ml4w/settings/launcher)
 
 # -----------------------------------------------------
 # Path to keybindings config file
@@ -43,7 +43,7 @@ sleep 0.2
 
 if [ "$launcher" == "walker" ]; then
     keybinds=$(echo -n "$keybinds" | tr '\r' ':')
-    $(xdg-config-resolve walker/launch.sh) -d -N -H -p "Search Keybinds" <<<"$keybinds"
+    /etc/xdg/walker/launch.sh -d -N -H -p "Search Keybinds" <<<"$keybinds"
 else
-    rofi -dmenu -i -markup -eh 2 -replace -p "Keybinds" -config $(xdg-config-resolve rofi/config-compact.rasi) <<<"$keybinds"
+    rofi -dmenu -i -markup -eh 2 -replace -p "Keybinds" -config /etc/xdg/rofi/config-compact.rasi <<<"$keybinds"
 fi

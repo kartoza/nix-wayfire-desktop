@@ -18,9 +18,9 @@ if [[ "$1" == "rofi" ]]; then
     options="$(hyprshade ls | sed 's/^[ *]*//')\noff"
 
     # Open rofi
-    choice=$(echo -e "$options" | rofi -dmenu -replace -config $(xdg-config-resolve rofi/config-hyprshade.rasi) -i -no-show-icons -l 4 -width 30 -p "Hyprshade")
+    choice=$(echo -e "$options" | rofi -dmenu -replace -config /etc/xdg/rofi/config-hyprshade.rasi -i -no-show-icons -l 4 -width 30 -p "Hyprshade")
     if [ ! -z $choice ]; then
-        echo "hyprshade_filter=\"$choice\"" >$(xdg-config-resolve ml4w/settings/hyprshade.sh)
+        echo "hyprshade_filter=\"$choice\"" >/etc/xdg/ml4w/settings/hyprshade.sh
         if [ "$choice" == "off" ]; then
             hyprshade off
             notify-send "Hyprshade deactivated"
@@ -36,7 +36,7 @@ else
     hyprshade_filter="blue-light-filter-50"
 
     # Check if hyprshade.sh settings file exists and load
-    settings_file=$(xdg-config-resolve ml4w/settings/hyprshade.sh)
+    settings_file=/etc/xdg/ml4w/settings/hyprshade.sh
 if [ -f "$settings_file" ]; then
         source "$settings_file"
     fi

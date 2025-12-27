@@ -1,7 +1,4 @@
 #!/usr/bin/env bash
-#   _____ __  __  ___       _ _____ _____ _____ _  _______ _____
-#  | ____|  \/  |/ _ \     | |_   _|  ___|_   _| |/ / ____|  __ \
-#  | |__  | |\/| | | | |   | | | | | |__   | | | ' /|  _| | |__) |
 #  |  __| | |  | | | | |   | | | | |  __|  | | |  < | |___|  _  /
 #  | |____| |  | | |_| |  /  | |_| | |     | | | . \| |___|  | \ \
 #  |______|_|  |_|\___/  /__/ |___/ |_|     |_| |_|\_\_____|_|  \_\
@@ -14,7 +11,7 @@
 set -euo pipefail
 
 # Use the existing fuzzel emoji script with proper data
-EMOJI="$(sed '1,/^### DATA ###$/d' $(xdg-config-resolve fuzzel/fuzzel-emoji) | fuzzel \
+EMOJI="$(sed '1,/^### DATA ###$/d' /etc/xdg/hypr/scripts/fuzzel-emoji | fuzzel \
     --dmenu \
     --prompt="🙂 Emoji: " \
     --width=48 \
