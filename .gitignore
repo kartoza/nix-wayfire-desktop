@@ -17,4 +17,9 @@ result-*
 .DS_Store
 Thumbs.db/.claude/
 /*.qcow2
+# Core dumps and debug files
 core
+core.*
+*.core
+vgcore.*
+a.out
