@@ -20,7 +20,7 @@ if ! pgrep -x eww > /dev/null; then
 fi
 
 # Open the overlay window if not already open
-if ! eww -c "$EWW_CONFIG" list-windows | grep -q "workspace-overlay"; then
+if ! eww -c "$EWW_CONFIG" active-windows | grep -q "workspace-overlay"; then
     eww -c "$EWW_CONFIG" open workspace-overlay 2>/dev/null || true
 fi
 
