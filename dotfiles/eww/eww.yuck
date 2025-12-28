@@ -1,0 +1,38 @@
+;; Eww configuration for Hyprland workspace overlay
+;; Shows workspace name in center of screen with smooth animations
+
+;; Variables
+(defvar workspace_visible false)
+(defvar workspace_name "")
+(defvar workspace_number "")
+
+;; Workspace overlay window
+(defwindow workspace-overlay
+  :monitor 0
+  :geometry (geometry :x "0%"
+                      :y "0%"
+                      :width "100%"
+                      :height "100%"
+                      :anchor "center center")
+  :stacking "overlay"
+  :exclusive false
+  :focusable false
+  :namespace "eww-workspace-overlay"
+  (workspace-widget))
+
+;; Workspace widget content
+(defwidget workspace-widget []
+  (box :class "workspace-overlay-container"
+       :orientation "vertical"
+       :space-evenly false
+       :valign "center"
+       :halign "center"
+       :visible workspace_visible
+    (box :class "workspace-overlay-box ${workspace_visible ? 'visible' : 'hidden'}"
+         :orientation "vertical"
+         :space-evenly false
+         :spacing 10
+      (label :class "workspace-number"
+             :text workspace_number)
+      (label :class "workspace-name"
+             :text workspace_name))))

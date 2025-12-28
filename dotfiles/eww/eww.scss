@@ -1,0 +1,102 @@
+/* Eww workspace overlay styles with smooth animations */
+
+* {
+  all: unset;
+  font-family: "Ubuntu", sans-serif;
+}
+
+/* Container takes full screen but is transparent */
+.workspace-overlay-container {
+  background-color: transparent;
+}
+
+/* Main workspace overlay box */
+.workspace-overlay-box {
+  background-color: rgba(22, 33, 39, 0.95);
+  border: 2px solid #DF9E2F;
+  border-radius: 16px;
+  padding: 40px 80px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+
+  /* Start hidden and scaled down */
+  opacity: 0;
+  transform: scale(0.8);
+
+  /* Smooth animation with cubic-bezier easing */
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Visible state with smooth entrance */
+.workspace-overlay-box.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Hidden state with smooth exit */
+.workspace-overlay-box.hidden {
+  opacity: 0;
+  transform: scale(0.9);
+  transition: all 0.3s cubic-bezier(0.36, 0, 0.66, -0.56);
+}
+
+/* Workspace number styling */
+.workspace-number {
+  font-size: 72px;
+  font-weight: bold;
+  color: #DF9E2F;
+  text-align: center;
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* Workspace name styling */
+.workspace-name {
+  font-size: 36px;
+  font-weight: 500;
+  color: #FFFFFF;
+  text-align: center;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  opacity: 0.9;
+}
+
+/* Alternative animation styles for different effects */
+/* Uncomment to try different animations */
+
+/* Slide from top */
+/*
+.workspace-overlay-box {
+  opacity: 0;
+  transform: translateY(-100px);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.workspace-overlay-box.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.workspace-overlay-box.hidden {
+  opacity: 0;
+  transform: translateY(-50px);
+  transition: all 0.3s ease-in;
+}
+*/
+
+/* Fade with rotation */
+/*
+.workspace-overlay-box {
+  opacity: 0;
+  transform: scale(0.8) rotate(-5deg);
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.workspace-overlay-box.visible {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+}
+
+.workspace-overlay-box.hidden {
+  opacity: 0;
+  transform: scale(0.9) rotate(5deg);
+  transition: all 0.3s ease-in-out;
+}
+*/

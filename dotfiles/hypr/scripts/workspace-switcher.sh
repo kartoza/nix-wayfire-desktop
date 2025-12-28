@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Fuzzel-based workspace switcher for Hyprland
 
-WORKSPACE_NAMES_FILE="$(xdg-config-path hypr/workspace-names.conf 2>/dev/null || echo "$HOME/.config/hypr/workspace-names.conf")"
+WORKSPACE_NAMES_FILE="$HOME/.config/hypr/workspace-names.conf"
 SYSTEM_WORKSPACE_NAMES_FILE="/etc/xdg/hypr/workspace-names.conf"
 
 # Ensure we have a workspace names file

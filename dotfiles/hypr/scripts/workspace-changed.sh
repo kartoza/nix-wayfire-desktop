@@ -15,7 +15,17 @@ else
     fi
 fi
 
-WS_NAME_FILE="$(xdg-config-path hypr/workspace-names.conf 2>/dev/null || echo "$HOME/.config/hypr/workspace-names.conf")"
+WS_NAME_FILE="$HOME/.config/hypr/workspace-names.conf"
+SYSTEM_WORKSPACE_NAMES_FILE="/etc/xdg/hypr/workspace-names.conf"
+
+# Ensure user config directory exists
+mkdir -p "$(dirname "$WS_NAME_FILE")"
+
+# Copy system default if user config doesn't exist
+if [[ ! -f "$WS_NAME_FILE" && -f "$SYSTEM_WORKSPACE_NAMES_FILE" ]]; then
+    cp "$SYSTEM_WORKSPACE_NAMES_FILE" "$WS_NAME_FILE"
+fi
+
 WS_NAME=$(cat "$WS_NAME_FILE" 2>/dev/null | grep "^${CURRENT_WS}=" | cut -d'=' -f2 || echo "Workspace ${CURRENT_WS}")
 
 # Log the workspace change
@@ -24,9 +34,9 @@ echo "$(date '+%Y-%m-%d %H:%M:%S') - Changed to workspace: ${CURRENT_WS} (${WS_N
 # Create log directory if it doesn't exist
 mkdir -p ~/.local/state
 
-# Optional: Send notification about workspace change
-if command -v notify-send >/dev/null 2>&1; then
-    notify-send -t 1000 "Workspace" "${WS_NAME}" -i applications-office
+# Show workspace overlay with eww (center screen with animation)
+if command -v workspace-overlay.sh >/dev/null 2>&1; then
+    workspace-overlay.sh "$((CURRENT_WS + 1))" "${WS_NAME}" 1500 &
 fi
 
 # Optional: Update waybar if it has a workspace widget

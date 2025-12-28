@@ -2,7 +2,16 @@
 # Waybar workspace display widget for Hyprland
 # Shows current workspace number and name
 
-WORKSPACE_NAMES_FILE="$(xdg-config-path hypr/workspace-names.conf 2>/dev/null || echo "$HOME/.config/hypr/workspace-names.conf")"
+WORKSPACE_NAMES_FILE="$HOME/.config/hypr/workspace-names.conf"
+SYSTEM_WORKSPACE_NAMES_FILE="/etc/xdg/hypr/workspace-names.conf"
+
+# Ensure user config directory exists
+mkdir -p "$(dirname "$WORKSPACE_NAMES_FILE")"
+
+# Copy system default if user config doesn't exist
+if [[ ! -f "$WORKSPACE_NAMES_FILE" && -f "$SYSTEM_WORKSPACE_NAMES_FILE" ]]; then
+    cp "$SYSTEM_WORKSPACE_NAMES_FILE" "$WORKSPACE_NAMES_FILE"
+fi
 
 # Function to get current workspace
 get_current_workspace() {

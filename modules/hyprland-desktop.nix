@@ -198,6 +198,9 @@ in {
       jq # Required for waybar config building
       # Window management and switching
       hyprshell # CLI/GUI that allows switching between windows in Hyprland
+      # Eww widget system for workspace overlay
+      eww # ElKowars wacky widgets - for animated workspace overlay
+      bc # Calculator for sleep duration in workspace-overlay.sh
     ];
 
     environment.sessionVariables = {
@@ -343,6 +346,9 @@ in {
       # Hyprshell configuration
       "xdg/hyprshell/config.ron".source = ../dotfiles/hyprshell/config.ron;
       "xdg/hyprshell/styles.css".source = ../dotfiles/hyprshell/styles.css;
+      # Eww configuration for workspace overlay
+      "xdg/eww/eww.yuck".source = ../dotfiles/eww/eww.yuck;
+      "xdg/eww/eww.scss".source = ../dotfiles/eww/eww.scss;
       # GPG agent configuration
       "skel/.gnupg/gpg-agent.conf".text = ''
         pinentry-program ${pkgs.pinentry-gnome3}/bin/pinentry-gnome3

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Hyprland workspace name management script
 
-WORKSPACE_NAMES_FILE="$(xdg-config-path hypr/workspace-names.conf 2>/dev/null || echo "$HOME/.config/hypr/workspace-names.conf")"
+WORKSPACE_NAMES_FILE="$HOME/.config/hypr/workspace-names.conf"
 SYSTEM_WORKSPACE_NAMES_FILE="/etc/xdg/hypr/workspace-names.conf"
 
 # Ensure user config directory exists
