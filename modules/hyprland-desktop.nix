@@ -91,6 +91,17 @@ in {
         example = "regreet";
         description = "Greetd greeter to use (regreet for GTK-based greeter)";
       };
+
+      notificationDaemon = mkOption {
+        type = types.enum [ "mako" "swaync" ];
+        default = "swaync";
+        example = "mako";
+        description = ''
+          Notification daemon to use:
+          - "mako": Simple notification daemon (lightweight, no history)
+          - "swaync": Sway Notification Center (notification history, control center panel)
+        '';
+      };
     };
   };
 
@@ -153,7 +164,8 @@ in {
       libsecret # For secret-tool command
       libsForQt5.qt5.qtwayland
       lm_sensors # Temperature monitoring
-      mako # Notification daemon for Wayland
+      mako # Notification daemon for Wayland (backup)
+      swaynotificationcenter # Notification center with history for Wayland
       nautilus # File manager
       networkmanager
       networkmanagerapplet # System tray applet for NetworkManager
@@ -307,11 +319,14 @@ in {
         '';
       };
       # Note: Using fuzzel as launcher instead of wofi
-      # Mako notification config - standard XDG location
+      # Mako notification config - standard XDG location (backup)
       "xdg/mako/kartoza".source = ../dotfiles/mako/kartoza;
       # Notification sound file
       "xdg/mako/sounds/notification.wav".source =
         ../resources/sounds/notification.wav;
+      # SwayNC (Sway Notification Center) configuration
+      "xdg/swaync/config.json".source = ../dotfiles/swaync/config.json;
+      "xdg/swaync/style.css".source = ../dotfiles/swaync/style.css;
       # nwg-launchers configs - standard XDG location
       "xdg/nwg-launchers/nwggrid/style.css".source =
         ../dotfiles/nwggrid/style.css;
@@ -334,6 +349,51 @@ in {
             lib.replaceStrings [ "path = /etc/kartoza-wallpaper.png" ]
             [ "path = ${cfg.wallpaper}" ] baseConfig;
         in configWithWallpaper;
+      };
+      # Autostart configuration with conditional notification daemon
+      "xdg/hypr/conf/autostart.conf" = {
+        text = let
+          notificationDaemonLine = if cfg.notificationDaemon == "swaync" then
+            "exec-once = swaync"
+          else
+            "exec-once = mako --config=/etc/xdg/mako/kartoza";
+        in ''
+          #    ___       __           __           __
+          #   / _ |__ __/ /____  ___ / /____ _____/ /_
+          #  / __ / // / __/ _ \(_-</ __/ _ `/ __/ __/
+          # /_/ |_\_,_/\__/\___/___/\__/\_,_/_/  \__/
+          #
+
+          # Launch waybar with proper config and style paths
+          exec-once = waybar -c /etc/xdg/waybar/config -s /etc/xdg/waybar/style.css
+
+          # Launch notification daemon (${cfg.notificationDaemon})
+          ${notificationDaemonLine}
+
+          # Launch wallpaper daemon
+          exec-once = swww-daemon
+
+          # Set wallpaper
+          exec-once = swww img ${cfg.wallpaper}
+
+          # Launch clipse clipboard monitor (secure storage)
+          exec-once = clipse listen
+
+          # Launch authentication agent
+          exec-once = /run/wrappers/bin/polkit-gnome-authentication-agent-1
+
+          # Load GTK settings
+          exec-once = /etc/xdg/hypr/scripts/gtk.sh
+
+          # Using hypridle for idle management
+          exec-once = hypridle
+
+          # Launch hyprshell daemon for window switching and app launcher
+          exec-once = hyprshell run
+
+          # Launch blueman Bluetooth applet
+          exec-once = blueman-applet
+        '';
       };
       # Fuzzel emoji script - standard location for executables
       "xdg/fuzzel/fuzzel-emoji".source = ../dotfiles/fuzzel/fuzzel-emoji;
@@ -378,6 +438,9 @@ in {
 
     # Enable power profile management
     services.power-profiles-daemon.enable = true;
+
+    # Enable fingerprint reader support (fprintd)
+    services.fprintd.enable = true;
 
     # Enable gnome-keyring service for SSH and GPG key caching
     services.gnome.gnome-keyring.enable = true;
