@@ -94,12 +94,12 @@ in {
 
       notificationDaemon = mkOption {
         type = types.enum [ "mako" "swaync" ];
-        default = "swaync";
-        example = "mako";
+        default = "mako";
+        example = "swaync";
         description = ''
-          Notification daemon to use:
-          - "mako": Simple notification daemon (lightweight, no history)
-          - "swaync": Sway Notification Center (notification history, control center panel)
+          Notification daemon to use (default: mako):
+          - "mako": Simple notification daemon (lightweight, legacy Kartoza default)
+          - "swaync": Sway Notification Center (notification history, control center panel, requires explicit configuration)
         '';
       };
     };
