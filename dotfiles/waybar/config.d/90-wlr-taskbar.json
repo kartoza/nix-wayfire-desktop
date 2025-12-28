@@ -2,8 +2,8 @@
         	"format": "{icon}",
         	"tooltip": true,
         	"tooltip-format": "{title}",
-        	"on-click": "/etc/xdg/hypr/scripts/taskbar-window-focus.sh 0x{address}",
-        	"on-click-middle": "hyprctl dispatch closewindow address:0x{address}",
+        	"on-click": "activate",
+        	"on-click-middle": "close",
         	"active-first": true,
         	"sort-by-app-id": true,
         	"icon-size": 20
