@@ -82,7 +82,7 @@ in {
         default = "/etc/kartoza-wallpaper.png";
         example = "/home/user/Pictures/my-wallpaper.jpg";
         description =
-          "Path to wallpaper image used for both desktop background and swaylock screen";
+          "Path to wallpaper image used for both desktop background and hyprlock lock screen";
       };
 
       greetdTheme = mkOption {
@@ -168,8 +168,8 @@ in {
       slurp # Region selector for screenshots
       sushi # File previewer for Nautilus (spacebar preview)
       sway-contrib.grimshot # Screenshot tool for Wayland
-      swayidle # Idle management for Wayland
-      swaylock-effects # Screen locker with effects for Wayland
+      hypridle # Idle management daemon for Hyprland
+      hyprlock # Screen locker for Hyprland with effects
       swayr # Visual window switcher with overlay
       swww # Wallpaper setter (works with Hyprland too)
       util-linux # Provides rfkill tool to enable/disable wireless devices
@@ -188,8 +188,6 @@ in {
       zenity # GUI dialogs for keyring unlock
       # Wallpaper and screen management
       swww # Efficient animated wallpaper daemon for wayland
-      swayidle # Idle management daemon for Wayland
-      swaylock # Screen locker for Wayland
       # Cursor theme
       vanilla-dmz # Default cursor theme
       # Image processing for wallpapers
@@ -327,14 +325,14 @@ in {
         ../resources/kartoza-logo-neon-bright.png;
       # Kartoza default wallpaper
       "kartoza-wallpaper.png".source = ../resources/KartozaBackground.png;
-      # Swaylock configuration - standard XDG location
-      "xdg/swaylock/config" = {
+      # Hyprlock configuration with Kartoza theming
+      "xdg/hypr/hyprlock.conf" = {
         text = let
-          baseConfig = lib.readFile ../dotfiles/swaylock/config;
+          baseConfig = lib.readFile ../dotfiles/hypr/hyprlock.conf;
           # Replace wallpaper path with configured wallpaper
           configWithWallpaper =
-            lib.replaceStrings [ "image=/etc/kartoza-wallpaper.png" ]
-            [ "image=${cfg.wallpaper}" ] baseConfig;
+            lib.replaceStrings [ "path = /etc/kartoza-wallpaper.png" ]
+            [ "path = ${cfg.wallpaper}" ] baseConfig;
         in configWithWallpaper;
       };
       # Fuzzel emoji script - standard location for executables
@@ -397,9 +395,9 @@ in {
       gnupg.enable = true;
     };
 
-    # Configure PAM for swaylock to unlock gnome-keyring when unlocking screen
+    # Configure PAM for hyprlock to unlock gnome-keyring when unlocking screen
     # Also enable fingerprint authentication (fprintd) for unlocking
-    security.pam.services.swaylock = {
+    security.pam.services.hyprlock = {
       enableGnomeKeyring = true;
       fprintAuth = true;
       gnupg.enable = true;

@@ -8,7 +8,7 @@ cat >"$TEMP_CONFIG" <<'EOF'
 [
   {
     "name": "Lock screen",
-    "exec": "swaylock -f",
+    "exec": "hyprlock",
     "icon": "system-lock-screen"
   },
   {
