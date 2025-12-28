@@ -4,10 +4,10 @@
 # Part of Kartoza NixOS configuration
 
 STATUSFILE="/tmp/wf-recorder.status"
-PIDFILE="/tmp/wf-recorder.pid"
+VIDEO_PIDFILE="/tmp/wf-recorder.pid"
 
 # Check if recording is active
-if [ -f "$PIDFILE" ] && kill -0 "$(cat $PIDFILE)" 2>/dev/null; then
+if [ -f "$VIDEO_PIDFILE" ] && kill -0 "$(cat $VIDEO_PIDFILE)" 2>/dev/null; then
   # Recording is active - red glowing dot
   echo '{"text": "●", "class": "recording", "tooltip": "Click to stop recording (Ctrl+6)"}'
 elif [ -f "$STATUSFILE" ] && [ "$(cat $STATUSFILE)" = "stopped" ]; then

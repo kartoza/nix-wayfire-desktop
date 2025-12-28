@@ -188,6 +188,7 @@ in {
       waybar # Bar panel for Wayland
       hyprpaper # Wallpaper utility for Hyprland
       wf-recorder # Wayland screen recorder
+      ffmpeg # For merging audio and video recordings
       wireplumber
       wl-clipboard
       wlr-randr # Display configuration for wlr compositors
