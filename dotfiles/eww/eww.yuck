@@ -38,33 +38,3 @@
       (label :class "workspace-name"
              :text workspace_name))))
 
-;; Scratchpad indicator window - positioned on right side, like workspace overlay
-(defwindow scratchpad-indicator
-  :monitor 0
-  :geometry (geometry :x "0px"
-                      :y "50%"
-                      :width "400px"
-                      :height "150px"
-                      :anchor "center right")
-  :stacking "overlay"
-  :exclusive false
-  :focusable false
-  :namespace "eww-scratchpad-indicator"
-  (scratchpad-widget))
-
-;; Scratchpad widget content
-(defwidget scratchpad-widget []
-  (box :class "scratchpad-indicator-container"
-       :orientation "vertical"
-       :space-evenly false
-       :valign "center"
-       :halign "end"
-       :visible scratchpad_visible
-    (box :class "scratchpad-indicator-box ${scratchpad_visible ? 'visible' : 'hidden'}"
-         :orientation "vertical"
-         :space-evenly false
-         :spacing 10
-      (label :class "scratchpad-icon"
-             :text "📋")
-      (label :class "scratchpad-title"
-             :text "Scratchpad"))))
