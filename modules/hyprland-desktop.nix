@@ -202,7 +202,7 @@ in {
       wshowkeys # On-screen key display for Wayland (setuid wrapper configured below)
       wtype # Wayland typing utility
       wev # Wayland event viewer for debugging
-      hyperpicker # Color picker for Wayland
+      hyprpicker # Color picker for Wayland
       xdg-desktop-portal-gtk
       xdg-desktop-portal-hyprland # For screen sharing in Hyprland
       zenity # GUI dialogs for keyring unlock
