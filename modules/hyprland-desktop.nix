@@ -13,6 +13,12 @@ let
   # Use the icon theme from the module configuration
   iconThemeName = cfg.iconTheme;
 
+  # Create mako sounds directory with notification sound
+  makoSounds = pkgs.runCommand "mako-sounds" {} ''
+    mkdir -p $out
+    cp ${../resources/sounds/notification.wav} $out/notification.wav
+  '';
+
 in
 {
   options = {
@@ -331,8 +337,8 @@ in
       "xdg/waybar/kartoza-logo-neon.png".source = ../resources/kartoza-logo-neon.png;
       "xdg/waybar/kartoza-logo-neon-bright.png".source = ../resources/kartoza-logo-neon-bright.png;
 
-      # Mako notification sound
-      "xdg/mako/sounds/notification.wav".source = ../resources/sounds/notification.wav;
+      # Mako notification sound directory
+      "xdg/mako/sounds".source = makoSounds;
 
       # Copy configured wallpaper to generic name for use by swww and hyprlock
       "kartoza-wallpaper.png".source = cfg.wallpaper;
