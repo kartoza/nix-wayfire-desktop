@@ -13,10 +13,11 @@ let
   # Use the icon theme from the module configuration
   iconThemeName = cfg.iconTheme;
 
-  # Create mako sounds directory with notification sound
-  makoSounds = pkgs.runCommand "mako-sounds" {} ''
-    mkdir -p $out
-    cp ${../resources/sounds/notification.wav} $out/notification.wav
+  # Create mako config directory with dotfiles and sounds
+  makoConfig = pkgs.runCommand "mako-config" {} ''
+    mkdir -p $out/sounds
+    cp -r ${../dotfiles/mako}/* $out/
+    cp ${../resources/sounds/notification.wav} $out/sounds/notification.wav
   '';
 
 in
@@ -292,7 +293,7 @@ in
       # Deploy entire directories to /etc/xdg
       "xdg/hypr".source = ../dotfiles/hypr;
       "xdg/ml4w".source = ../dotfiles/ml4w;
-      "xdg/mako".source = ../dotfiles/mako;
+      "xdg/mako".source = makoConfig;
       "xdg/nwg-launchers/nwggrid".source = ../dotfiles/nwggrid;
       "xdg/nwg-launchers/nwgbar".source = ../dotfiles/nwgbar;
       "xdg/qt5ct".source = ../dotfiles/qt5ct;
@@ -336,9 +337,6 @@ in
       # Resources - waybar logos
       "xdg/waybar/kartoza-logo-neon.png".source = ../resources/kartoza-logo-neon.png;
       "xdg/waybar/kartoza-logo-neon-bright.png".source = ../resources/kartoza-logo-neon-bright.png;
-
-      # Mako notification sound directory
-      "xdg/mako/sounds".source = makoSounds;
 
       # Copy configured wallpaper to generic name for use by swww and hyprlock
       "kartoza-wallpaper.png".source = cfg.wallpaper;
