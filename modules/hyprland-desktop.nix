@@ -14,10 +14,21 @@ let
   iconThemeName = cfg.iconTheme;
 
   # Create mako config directory with dotfiles and sounds
-  makoConfig = pkgs.runCommand "mako-config" {} ''
+  makoConfig = pkgs.runCommand "mako-config" { } ''
     mkdir -p $out/sounds
     cp -r ${../dotfiles/mako}/* $out/
     cp ${../resources/sounds/notification.wav} $out/sounds/notification.wav
+  '';
+
+  # Pre-compute keybindings list at build time for instant fuzzel display
+  hyprConfig = pkgs.runCommand "hypr-config" { buildInputs = [ pkgs.bash ]; } ''
+    mkdir -p $out/scripts
+    cp -r ${../dotfiles/hypr}/* $out/
+
+    # Run keybindings generator script
+    ${pkgs.bash}/bin/bash ${../build-scripts/generate-keybindings-list.sh} \
+      "$out/conf/keybindings/default.conf" \
+      "$out/scripts/keybindings-list.txt"
   '';
 
 in
@@ -291,7 +302,7 @@ in
     # Deploy Hyprland configuration files system-wide using standard paths
     environment.etc = {
       # Deploy entire directories to /etc/xdg
-      "xdg/hypr".source = ../dotfiles/hypr;
+      "xdg/hypr".source = hyprConfig;
       "xdg/ml4w".source = ../dotfiles/ml4w;
       "xdg/mako".source = makoConfig;
       "xdg/nwg-launchers/nwggrid".source = ../dotfiles/nwggrid;
