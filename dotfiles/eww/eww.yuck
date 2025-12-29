@@ -5,6 +5,7 @@
 (defvar workspace_visible false)
 (defvar workspace_name "")
 (defvar workspace_number "")
+(defvar scratchpad_visible false)
 
 ;; Workspace overlay window - positioned on right side, 1/3 down from top
 (defwindow workspace-overlay
@@ -36,3 +37,34 @@
              :text workspace_number)
       (label :class "workspace-name"
              :text workspace_name))))
+
+;; Scratchpad indicator window - positioned at top center
+(defwindow scratchpad-indicator
+  :monitor 0
+  :geometry (geometry :x "0%"
+                      :y "20px"
+                      :width "250px"
+                      :height "80px"
+                      :anchor "top center")
+  :stacking "overlay"
+  :exclusive false
+  :focusable false
+  :namespace "eww-scratchpad-indicator"
+  (scratchpad-widget))
+
+;; Scratchpad widget content
+(defwidget scratchpad-widget []
+  (box :class "scratchpad-indicator-container"
+       :orientation "vertical"
+       :space-evenly false
+       :valign "start"
+       :halign "center"
+       :visible scratchpad_visible
+    (box :class "scratchpad-indicator-box ${scratchpad_visible ? 'visible' : 'hidden'}"
+         :orientation "vertical"
+         :space-evenly false
+         :spacing 5
+      (label :class "scratchpad-title"
+             :text "Scratchpad")
+      (label :class "scratchpad-hint"
+             :text "Hide: Mod + ~"))))

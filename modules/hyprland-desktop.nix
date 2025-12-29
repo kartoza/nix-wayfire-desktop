@@ -345,9 +345,11 @@ in
             '';
       };
 
-      # Resources - waybar logos
+      # Resources - waybar logos and start button
       "xdg/waybar/kartoza-logo-neon.png".source = ../resources/kartoza-logo-neon.png;
       "xdg/waybar/kartoza-logo-neon-bright.png".source = ../resources/kartoza-logo-neon-bright.png;
+      "xdg/waybar/kartoza-start-button.png".source = ../resources/kartoza-start-button.png;
+      "xdg/waybar/kartoza-start-button-hover.png".source = ../resources/kartoza-start-button-hover.png;
 
       # Copy configured wallpaper to generic name for use by swww and hyprlock
       "kartoza-wallpaper.png".source = cfg.wallpaper;

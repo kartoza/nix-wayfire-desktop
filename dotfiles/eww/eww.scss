@@ -52,3 +52,53 @@
   color: #FFFFFF;
   opacity: 0.9;
 }
+
+/* ========================================
+   Scratchpad Indicator Styles
+   ======================================== */
+
+/* Container takes full screen but is transparent */
+.scratchpad-indicator-container {
+  background-color: transparent;
+}
+
+/* Main scratchpad indicator box */
+.scratchpad-indicator-box {
+  background-color: rgba(26, 17, 15, 0.95);
+  border: 2px solid #DF9E2F;
+  border-radius: 12px;
+  padding: 15px 25px;
+
+  /* Start hidden */
+  opacity: 0;
+
+  /* Smooth fade animation */
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* Visible state - fade in */
+.scratchpad-indicator-box.visible {
+  opacity: 1;
+}
+
+/* Hidden state - fade out */
+.scratchpad-indicator-box.hidden {
+  opacity: 0;
+}
+
+/* Scratchpad title styling */
+.scratchpad-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #DF9E2F;
+  text-align: center;
+}
+
+/* Scratchpad hint styling */
+.scratchpad-hint {
+  font-size: 14px;
+  font-weight: 400;
+  color: #FFFFFF;
+  opacity: 0.8;
+  text-align: center;
+}
