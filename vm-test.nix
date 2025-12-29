@@ -1,11 +1,5 @@
 # VM configuration for testing Kartoza Hyprland Desktop
-{
-  config,
-  lib,
-  pkgs,
-  modulesPath,
-  ...
-}:
+{ config, lib, pkgs, modulesPath, ... }:
 
 {
   imports = [
@@ -37,15 +31,12 @@
     qtTheme = "gnome"; # Options: gnome, gtk2, kde, fusion
 
     # Keyboard layout configuration (demonstrates customization)
-    keyboardLayouts = [
-      "us"
-      "de"
-      "fr"
-    ]; # US, German, French (Alt+Shift to toggle)
+    keyboardLayouts =
+      [ "us" "de" "fr" ]; # US, German, French (Alt+Shift to toggle)
 
     # Wallpaper configuration (demonstrates unified desktop/lock screen wallpaper)
-    wallpaper = "/etc/kartoza-wallpaper.png"; # Default Kartoza wallpaper
-    # wallpaper = "/home/testuser/Pictures/custom-wallpaper.jpg"; # Example custom path
+    # Defaults to Kartoza branded wallpaper, can be overridden with custom image:
+    # wallpaper = /path/to/custom-wallpaper.jpg;
   };
 
   # VM-specific configuration
@@ -81,12 +72,7 @@
   users.users.testuser = {
     isNormalUser = true;
     password = "test"; # Simple password for VM testing
-    extraGroups = [
-      "wheel"
-      "networkmanager"
-      "video"
-      "audio"
-    ];
+    extraGroups = [ "wheel" "networkmanager" "video" "audio" ];
   };
 
   # Enable sudo for test user
@@ -100,11 +86,7 @@
   };
 
   # Minimal package set for testing
-  environment.systemPackages = with pkgs; [
-    firefox
-    nautilus
-    gnome-terminal
-  ];
+  environment.systemPackages = with pkgs; [ firefox nautilus gnome-terminal ];
 
   # Auto-login for convenience in VM testing
   # Note: Using SDDM instead of greetd as per module configuration

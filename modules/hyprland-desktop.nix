@@ -96,26 +96,11 @@ in {
       };
 
       wallpaper = mkOption {
-        type = types.str;
-        default = "/etc/kartoza-wallpaper.png";
-        example = "/home/user/Pictures/my-wallpaper.jpg";
+        type = types.path;
+        default = ../resources/KartozaBackground.png;
+        example = literalExpression "/home/user/Pictures/my-wallpaper.jpg";
         description =
-          "Path to wallpaper image used for both desktop background and hyprlock lock screen";
-      };
-
-      startButton = mkOption {
-        type = types.str;
-        default = "/etc/kartoza-start-button.png";
-        example = "/home/user/Pictures/start-button.jpg";
-        description = "Path to image used for the start button in waybar";
-      };
-
-      startButtonHovered = mkOption {
-        type = types.str;
-        default = "/etc/kartoza-start-button-hover.png";
-        example = "/home/user/Pictures/start-button-hovered.jpg";
-        description =
-          "Path to image used for the start button in waybar when hovered";
+          "Path to wallpaper image file used for both desktop background and hyprlock lock screen. Defaults to Kartoza branded wallpaper.";
       };
 
       greetdTheme = mkOption {
@@ -346,9 +331,10 @@ in {
       };
 
       # Resources - waybar logos and start button
-      "xdg/waybar/kartoza-start-button.png".source = cfg.startButton;
+      "xdg/waybar/kartoza-start-button.png".source =
+        ../resources/kartoza-start-button.png;
       "xdg/waybar/kartoza-start-button-hover.png".source =
-        cfg.startButtonHovered;
+        ../resources/kartoza-start-button-hover.png;
 
       # Copy configured wallpaper to generic name for use by swww and hyprlock
       "kartoza-wallpaper.png".source = cfg.wallpaper;
@@ -362,7 +348,7 @@ in {
       '';
       "skel/.gnupg/gpg.conf".text = ''
         use-agent
-        keyserver hkps://keys.openpgp.org
+        keyserver hkps://keys.llopenpgp.org
         keyserver-options auto-key-retrieve
       '';
     };
