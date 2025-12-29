@@ -207,8 +207,8 @@ in {
       # Let Hyprland set XDG_CURRENT_DESKTOP automatically to avoid compatibility warnings
       XDG_SESSION_DESKTOP = "hyprland";
       # Cursor theme and size are managed by home-manager (see home/default.nix)
-      # Enable gnome-keyring SSH agent
-      SSH_AUTH_SOCK = "$XDG_RUNTIME_DIR/keyring/ssh";
+      # SSH is handled by GPG agent (configured with enableSSHSupport below)
+      # GPG agent uses gnome-keyring as backend for key storage
       # Configure GPG agent socket
       GPG_TTY = "$(tty)";
       GNUPGHOME = "$HOME/.gnupg";
@@ -318,6 +318,8 @@ in {
         ../dotfiles/nwggrid/style.css;
       "xdg/nwg-launchers/nwgbar/style.css".source =
         ../dotfiles/nwgbar/style.css;
+      "xdg/nwg-launchers/nwgbar/bar.json".source =
+        ../dotfiles/nwgbar/bar.json;
       # Waybar scripts and resources
       "xdg/waybar/scripts".source = ../dotfiles/waybar/scripts;
       "xdg/waybar/kartoza-logo-neon.png".source =
@@ -505,7 +507,6 @@ in {
       DefaultEnvironment="WAYLAND_DISPLAY=wayland-1"
       DefaultEnvironment="XDG_SESSION_DESKTOP=hyprland"
       DefaultEnvironment="XDG_SESSION_TYPE=wayland"
-      DefaultEnvironment="SSH_AUTH_SOCK=%t/keyring/ssh"
       DefaultEnvironment="GPG_TTY=$(tty)"
     '';
 

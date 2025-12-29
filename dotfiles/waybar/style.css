@@ -97,7 +97,7 @@ window#waybar {
 
 /* Application launcher - distinctive Kartoza branding */
 #custom-launcher {
-    background-image: url("kartoza-logo-neon.png");
+    background-image: url("kartoza-start-button.png");
     background-size: 32px 32px;
     background-repeat: no-repeat;
     background-position: center;
@@ -111,7 +111,7 @@ window#waybar {
 #custom-launcher:hover {
     color: #0D1A1F;
     background-color: #162127; 
-    background-image: url("kartoza-logo-neon-bright.png");
+    background-image: url("kartoza-start-button-hover.png");
 }
 
 /* Spacer stub - subtle divider */
@@ -203,18 +203,14 @@ window#waybar {
 
 /* Clock - prominent centerpiece */
 #clock {
-  
-  /* make the clock pill shaped */ 
     border-radius: 20px;
     font-size: 14px;
     font-weight: 600;
     padding: 6px 16px;
     margin: 4px 0px;
-    /* kartoza orange backkground and with norito font */ 
-    background-color: rgba(86, 159, 198, 0.1); 
+    background-color: transparent;
     color: #569FC6;
-    border: 1px solid rgba(86, 159, 198, 0.3);
-
+    border: none;
 }
 
 #clock:hover {
