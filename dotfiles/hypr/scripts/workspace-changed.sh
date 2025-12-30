@@ -26,7 +26,16 @@ if [[ ! -f "$WS_NAME_FILE" && -f "$SYSTEM_WORKSPACE_NAMES_FILE" ]]; then
     cp "$SYSTEM_WORKSPACE_NAMES_FILE" "$WS_NAME_FILE"
 fi
 
-WS_NAME=$(cat "$WS_NAME_FILE" 2>/dev/null | grep "^${CURRENT_WS}=" | cut -d'=' -f2 || echo "Workspace ${CURRENT_WS}")
+# Check if this is a special workspace (contains non-numeric characters)
+if [[ "$CURRENT_WS" =~ ^[0-9]+$ ]]; then
+    # Regular workspace - use number
+    WS_NAME=$(cat "$WS_NAME_FILE" 2>/dev/null | grep "^${CURRENT_WS}=" | cut -d'=' -f2 || echo "Workspace ${CURRENT_WS}")
+    WS_DISPLAY_NUMBER="$((CURRENT_WS + 1))"
+else
+    # Special workspace - use name
+    WS_NAME=$(cat "$WS_NAME_FILE" 2>/dev/null | grep "^${CURRENT_WS}=" | cut -d'=' -f2 || echo "${CURRENT_WS^}")
+    WS_DISPLAY_NUMBER="${CURRENT_WS^}"  # Capitalize first letter
+fi
 
 # Log the workspace change
 echo "$(date '+%Y-%m-%d %H:%M:%S') - Changed to workspace: ${CURRENT_WS} (${WS_NAME})" >> ~/.local/state/hyprland-workspace.log
@@ -36,7 +45,7 @@ mkdir -p ~/.local/state
 
 # Show workspace overlay with eww (slides in from right, docked to edge)
 if command -v workspace-overlay.sh >/dev/null 2>&1; then
-    workspace-overlay.sh "$((CURRENT_WS + 1))" "${WS_NAME}" &
+    workspace-overlay.sh "$WS_DISPLAY_NUMBER" "${WS_NAME}" &
 fi
 
 # You can add more custom actions here:
