@@ -79,7 +79,7 @@ kartoza.hyprland-desktop = {
 
 The module provides unified wallpaper management across desktop and lock screen:
 
-- **Default**: `/etc/kartoza-wallpaper.png` (Kartoza branded wallpaper)
+- **Default**: `/etc/wallpapers/kartoza.png` (Kartoza branded wallpaper)
 - **Configurable**: Set custom wallpaper path via `wallpaper` option
 - **Unified**: Same wallpaper used for desktop background (swww) and lock screen (swaylock)
 - **Styled Lock Screen**: Swaylock overlay with Kartoza colors, blur effects, clock, and indicators

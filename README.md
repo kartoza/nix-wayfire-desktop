@@ -116,7 +116,7 @@ sudo nixos-rebuild switch --flake .#your-hostname
     # keyboardLayouts = [ "us" "es" ];      # Example: US, Spanish
     
     # Wallpaper configuration
-    wallpaper = "/etc/kartoza-wallpaper.png";          # Default: Kartoza wallpaper
+    wallpaper = "/etc/wallpapers/kartoza.png";          # Default: Kartoza wallpaper
     # wallpaper = "/home/user/Pictures/my-wallpaper.jpg"; # Example: Custom wallpaper
   };
 }
@@ -221,7 +221,7 @@ The module provides unified wallpaper management for both desktop background and
 # Default configuration (uses Kartoza wallpaper)
 kartoza.hyprland-desktop = {
   enable = true;
-  wallpaper = "/etc/kartoza-wallpaper.png"; # Default
+  wallpaper = "/etc/wallpapers/kartoza.png"; # Default
 };
 
 # Custom wallpaper configuration

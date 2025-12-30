@@ -262,7 +262,8 @@ in {
       QT_QPA_PLATFORMTHEME = cfg.qtTheme;
 
       # Qt scaling and sizing fixes to prevent dialog compression
-      QT_AUTO_SCREEN_SCALE_FACTOR = "0"; # Disable auto-scaling to prevent massive fonts in Wayland
+      QT_AUTO_SCREEN_SCALE_FACTOR =
+        "0"; # Disable auto-scaling to prevent massive fonts in Wayland
       QT_ENABLE_HIGHDPI_SCALING = "0"; # Disable high DPI scaling
       QT_SCALE_FACTOR = toString cfg.fractionalScaling;
       QT_FONT_DPI = "96";
@@ -337,8 +338,8 @@ in {
       "xdg/waybar/kartoza-start-button-hover.png".source =
         ../resources/kartoza-start-button-hover.png;
 
-      # Copy configured wallpaper to generic name for use by swww and hyprlock
-      "kartoza-wallpaper.png".source = cfg.wallpaper;
+      # Copy configured wallpaper to dedicated directory to avoid path conflicts
+      "wallpapers/kartoza.png".source = cfg.wallpaper;
 
       # GPG agent configuration
       "skel/.gnupg/gpg-agent.conf".text = ''
@@ -373,10 +374,10 @@ in {
     services.power-profiles-daemon.enable = true;
 
     # Configure lid switch behavior to lock screen before suspend
-    services.logind = {
-      lidSwitch = "suspend";
-      lidSwitchDocked = "ignore";
-      lidSwitchExternalPower = "suspend";
+    services.logind.settings.Login = {
+      HandleLidSwitch = "suspend";
+      HandleLidSwitchDocked = "ignore";
+      HandleLidSwitchExternalPower = "suspend";
     };
 
     # Enable fingerprint reader support (fprintd)
