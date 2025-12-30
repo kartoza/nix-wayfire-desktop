@@ -262,8 +262,8 @@ in {
       QT_QPA_PLATFORMTHEME = cfg.qtTheme;
 
       # Qt scaling and sizing fixes to prevent dialog compression
-      QT_AUTO_SCREEN_SCALE_FACTOR = "1";
-      QT_ENABLE_HIGHDPI_SCALING = "1";
+      QT_AUTO_SCREEN_SCALE_FACTOR = "0"; # Disable auto-scaling to prevent massive fonts in Wayland
+      QT_ENABLE_HIGHDPI_SCALING = "0"; # Disable high DPI scaling
       QT_SCALE_FACTOR = toString cfg.fractionalScaling;
       QT_FONT_DPI = "96";
     };
