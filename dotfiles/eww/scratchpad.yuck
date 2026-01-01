@@ -27,4 +27,4 @@
          :orientation "horizontal"
          :space-evenly false
       (label :class "scratchpad-label"
-             :text "Scratchpad"))))
+             :text "SCRATCHPAD"))))

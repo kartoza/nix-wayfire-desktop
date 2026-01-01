@@ -1,16 +1,24 @@
 /* Eww scratchpad indicator styles - GTK CSS compatible */
+/* Matches workspace overlay styling for consistency */
 
-/* Container takes up space but is transparent */
+/* Container is transparent */
 .scratchpad-indicator-container {
   background-color: transparent;
 }
 
-/* Scratchpad indicator box */
+/* Scratchpad indicator box - same styling as workspace overlay */
 .scratchpad-indicator-box {
   background-color: rgba(26, 17, 15, 0.95);
-  border: 2px solid #DF9E2F;
-  border-radius: 8px;
-  padding: 12px 24px;
+  border-left: 2px solid #DF9E2F;
+  border-top: 2px solid #DF9E2F;
+  border-bottom: 2px solid #DF9E2F;
+  border-right: none;
+  border-top-left-radius: 16px;
+  border-bottom-left-radius: 16px;
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+  padding: 16px 32px;
+  margin-right: 0px;
 
   /* Start hidden */
   opacity: 0;
@@ -32,11 +40,10 @@
   margin-right: -300px;
 }
 
-/* Scratchpad label styling */
+/* Scratchpad label styling - matches workspace name style */
 .scratchpad-label {
-  font-size: 18px;
+  font-size: 24px;
   font-weight: bold;
   color: #DF9E2F;
-  text-transform: uppercase;
   letter-spacing: 1px;
 }
