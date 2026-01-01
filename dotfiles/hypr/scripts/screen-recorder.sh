@@ -38,24 +38,44 @@ merge_recordings() {
   local webcam_file="$3"
   local output_file="${video_file%.mp4}-merged.mp4"
   local vertical_output_file="${video_file%.mp4}-vertical.mp4"
+  local normalized_audio="${audio_file%.wav}-normalized.wav"
 
   # Wait a moment for files to be fully written
   sleep 2
 
-  # Audio normalization filter:
-  # - loudnorm: EBU R128 loudness normalization (broadcast standard)
-  # - Target: -16 LUFS (good for screen recordings, clear but not too loud)
-  # - Measured range: -1.5 LU (keeps dynamics)
-  # - True peak: -2.0 dB (prevents clipping/distortion)
-  local audio_filter="loudnorm=I=-16:TP=-2:LRA=11"
+  notify-send "Screen Recording" "Analyzing audio levels..." --icon=video-x-generic --urgency=normal
 
-  notify-send "Screen Recording" "Processing audio and video..." --icon=video-x-generic --urgency=normal
+  # TWO-PASS LOUDNORM for maximum quality without clipping
+  # Pass 1: Measure the audio levels
+  local loudnorm_stats=$(ffmpeg -i "$audio_file" -af loudnorm=I=-14:TP=-1.5:LRA=11:print_format=json -f null - 2>&1 | tail -n 12)
+
+  # Extract measured values from JSON output
+  local measured_I=$(echo "$loudnorm_stats" | grep input_i | cut -d'"' -f4 | sed 's/[^0-9.-]//g')
+  local measured_TP=$(echo "$loudnorm_stats" | grep input_tp | cut -d'"' -f4 | sed 's/[^0-9.-]//g')
+  local measured_LRA=$(echo "$loudnorm_stats" | grep input_lra | cut -d'"' -f4 | sed 's/[^0-9.-]//g')
+  local measured_thresh=$(echo "$loudnorm_stats" | grep input_thresh | cut -d'"' -f4 | sed 's/[^0-9.-]//g')
+
+  # Pass 2: Create normalized audio file (preserving original)
+  # Target: -14 LUFS (louder than broadcast, perfect for screen recordings)
+  # True peak: -1.5 dB (prevents clipping while maximizing volume)
+  # LRA: 11 (preserves dynamic range)
+  notify-send "Screen Recording" "Normalizing audio..." --icon=video-x-generic --urgency=normal
+
+  if ffmpeg -y -i "$audio_file" \
+    -af "loudnorm=I=-14:TP=-1.5:LRA=11:measured_I=${measured_I}:measured_TP=${measured_TP}:measured_LRA=${measured_LRA}:measured_thresh=${measured_thresh}:linear=true:print_format=summary" \
+    -c:a pcm_s16le \
+    "$normalized_audio" 2>&1 | grep -q "Output"; then
+
+    notify-send "Screen Recording" "Merging video and audio..." --icon=video-x-generic --urgency=normal
+  else
+    notify-send "Audio Normalization Warning" "Using original audio" --icon=dialog-warning --urgency=normal
+    normalized_audio="$audio_file"
+  fi
 
   # Create screen + audio merged video (MAXIMUM QUALITY)
   # CRF 0 = completely lossless, preset veryslow = best quality/compression
   # AAC at 320k for highest audio quality
-  if ffmpeg -y -i "$video_file" -i "$audio_file" \
-    -af "$audio_filter" \
+  if ffmpeg -y -i "$video_file" -i "$normalized_audio" \
     -c:v libx264 -preset veryslow -crf 0 \
     -c:a aac -b:a 320k \
     -shortest \
@@ -92,13 +112,12 @@ merge_recordings() {
 
       # Create vertical video: screen on top, webcam below
       # Using MAXIMUM QUALITY: CRF 0 (lossless), veryslow preset
-      if ffmpeg -y -i "$video_file" -i "$webcam_file" -i "$audio_file" \
+      if ffmpeg -y -i "$video_file" -i "$webcam_file" -i "$normalized_audio" \
         -filter_complex "\
           [0:v]scale=${screen_width}:${screen_height}:flags=lanczos[screen]; \
           [1:v]scale=${screen_width}:${webcam_height}:flags=lanczos[webcam]; \
           [screen][webcam]vstack=inputs=2[outv]" \
         -map "[outv]" -map 2:a \
-        -af "$audio_filter" \
         -c:v libx264 -preset veryslow -crf 0 -pix_fmt yuv420p \
         -c:a aac -b:a 320k \
         -shortest \
@@ -147,26 +166,47 @@ if [ -f "$AUDIO_PIDFILE" ] && kill -0 "$(cat $AUDIO_PIDFILE)" 2>/dev/null; then
 fi
 
 if [ "$is_recording" = true ]; then
-  # Stop video recording
+  # Stop video recording with SIGINT (wf-recorder needs this to properly finalize)
   if [ -f "$VIDEO_PIDFILE" ] && kill -0 "$(cat $VIDEO_PIDFILE)" 2>/dev/null; then
-    kill "$(cat $VIDEO_PIDFILE)" 2>/dev/null
+    video_pid=$(cat $VIDEO_PIDFILE)
+    kill -INT "$video_pid" 2>/dev/null
+    # Wait for wf-recorder to finalize the file (max 5 seconds)
+    for i in {1..10}; do
+      kill -0 "$video_pid" 2>/dev/null || break
+      sleep 0.5
+    done
     rm -f "$VIDEO_PIDFILE"
   fi
 
-  # Stop audio recording
+  # Stop audio recording with SIGINT
   if [ -f "$AUDIO_PIDFILE" ] && kill -0 "$(cat $AUDIO_PIDFILE)" 2>/dev/null; then
-    kill "$(cat $AUDIO_PIDFILE)" 2>/dev/null
+    audio_pid=$(cat $AUDIO_PIDFILE)
+    kill -INT "$audio_pid" 2>/dev/null
+    # Wait for pw-record to finalize the file (max 5 seconds)
+    for i in {1..10}; do
+      kill -0 "$audio_pid" 2>/dev/null || break
+      sleep 0.5
+    done
     rm -f "$AUDIO_PIDFILE"
   fi
 
-  # Stop webcam recording if active
+  # Stop webcam recording if active with SIGINT
   if [ -f "$WEBCAM_PIDFILE" ] && kill -0 "$(cat $WEBCAM_PIDFILE)" 2>/dev/null; then
-    kill "$(cat $WEBCAM_PIDFILE)" 2>/dev/null
+    webcam_pid=$(cat $WEBCAM_PIDFILE)
+    kill -INT "$webcam_pid" 2>/dev/null
+    # Wait for ffmpeg to finalize the file (max 5 seconds)
+    for i in {1..10}; do
+      kill -0 "$webcam_pid" 2>/dev/null || break
+      sleep 0.5
+    done
     rm -f "$WEBCAM_PIDFILE"
   fi
 
   echo "stopped" >"$STATUSFILE"
   notify-send "Screen Recording" "Processing recording..." --icon=video-x-generic --urgency=normal
+
+  # Additional wait to ensure all files are fully written and flushed to disk
+  sleep 1
 
   # Merge recordings in background
   if [ -f "$VIDEO_FILE" ] && [ -f "$AUDIO_FILE" ]; then
