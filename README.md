@@ -459,7 +459,7 @@ The module includes several integrated tools for productivity and accessibility,
   - Smooth zoom transitions
   - No performance impact when not zooming
 
-### On-Screen Key Display
+### On-Screen Key Display Using wshowkeys
 
 - **Keybinding**: `Super + -`
 - **Technology**: wshowkeys with Kartoza theming
