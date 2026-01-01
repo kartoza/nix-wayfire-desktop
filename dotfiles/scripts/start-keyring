@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+# Script to start GNOME Keyring daemon at Hyprland session start
+# This ensures the daemon is running and environment variables are set
+
+# Check if gnome-keyring-daemon is already running
+if pgrep -f gnome-keyring-daemon >/dev/null; then
+  echo "GNOME Keyring daemon is already running"
+else
+  echo "Starting GNOME Keyring daemon..."
+
+  # Start gnome-keyring-daemon and export environment variables
+  # The --start flag outputs shell commands to set environment variables
+  eval $(gnome-keyring-daemon --start --components=pkcs11,secrets,ssh 2>/dev/null)
+
+  if [ -n "$GNOME_KEYRING_CONTROL" ]; then
+    systemctl --user set-environment GNOME_KEYRING_CONTROL="$GNOME_KEYRING_CONTROL"
+  fi
+
+  echo "GNOME Keyring daemon started successfully"
+fi
+
+# Detect and export the correct SSH agent socket
+# Modern gnome-keyring uses GCR SSH agent which provides better integration
+USER_ID=$(id -u)
+GCR_SSH_SOCKET="/run/user/${USER_ID}/gcr/ssh"
+KEYRING_SSH_SOCKET="/run/user/${USER_ID}/keyring/ssh"
+
+# Prefer GCR SSH agent if available (gnome-keyring 48.0+)
+if [ -S "$GCR_SSH_SOCKET" ]; then
+  export SSH_AUTH_SOCK="$GCR_SSH_SOCKET"
+  echo "Using GCR SSH agent at $GCR_SSH_SOCKET"
+elif [ -S "$KEYRING_SSH_SOCKET" ]; then
+  export SSH_AUTH_SOCK="$KEYRING_SSH_SOCKET"
+  echo "Using keyring SSH agent at $KEYRING_SSH_SOCKET"
+fi
+
+# Propagate SSH_AUTH_SOCK to systemd user session and dbus
+if [ -n "$SSH_AUTH_SOCK" ]; then
+  systemctl --user set-environment SSH_AUTH_SOCK="$SSH_AUTH_SOCK"
+  dbus-update-activation-environment --systemd SSH_AUTH_SOCK 2>/dev/null
+  echo "SSH agent socket set to: $SSH_AUTH_SOCK"
+fi

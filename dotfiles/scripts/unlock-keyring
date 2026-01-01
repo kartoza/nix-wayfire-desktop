@@ -4,7 +4,7 @@
 # This ensures the keyring is available for SSH keys and other secrets
 
 # Check if gnome-keyring-daemon is already running
-if pgrep -x -f gnome-keyring-daemon >/dev/null; then
+if pgrep -f gnome-keyring-daemon >/dev/null; then
   echo "GNOME Keyring daemon is already running"
 
   # Check if the default keyring is unlocked
