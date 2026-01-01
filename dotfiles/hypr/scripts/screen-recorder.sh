@@ -210,7 +210,7 @@ else
   # Start video recording (MAXIMUM QUALITY - lossless)
   # CRF 0 = completely lossless
   # preset=veryslow = best compression with highest quality
-  # --audio="" disables audio recording (we handle it separately)
+  # No audio parameter - we handle audio separately with pw-record
   if [ -n "$focused_output" ] && [ "$focused_output" != "null" ]; then
     wf-recorder \
       --output="$focused_output" \
@@ -219,7 +219,6 @@ else
       --codec-param=preset=veryslow \
       --codec-param=crf=0 \
       --pixel-format=yuv420p \
-      --audio="" \
       2>&1 | tee /tmp/wf-recorder-error.log &
     video_pid=$!
   else
@@ -229,7 +228,6 @@ else
       --codec-param=preset=veryslow \
       --codec-param=crf=0 \
       --pixel-format=yuv420p \
-      --audio="" \
       2>&1 | tee /tmp/wf-recorder-error.log &
     video_pid=$!
   fi
