@@ -20,18 +20,18 @@ if ! eww -c "$EWW_CONFIG" active-windows | grep -q "scratchpad-indicator"; then
     eww -c "$EWW_CONFIG" open scratchpad-indicator 2>/dev/null || true
 fi
 
-# Check if special workspace is visible
-# The special workspace name is "special:scratchpad" in Hyprland
-SPECIAL_WORKSPACES=$(hyprctl workspaces -j | jq -r '.[] | select(.name == "special:scratchpad") | .windows')
+# Check if special workspace "scratchpad" is currently visible
+# In Hyprland, special workspaces can be shown on top of regular workspaces
+# We need to check all monitors to see if the scratchpad is displayed on any of them
 
-# If there are windows in the scratchpad and it's currently visible/active
-ACTIVE_WORKSPACE=$(hyprctl activeworkspace -j | jq -r '.name')
+# Get all monitors and check if any are showing the scratchpad special workspace
+SCRATCHPAD_VISIBLE=$(hyprctl monitors -j | jq -r '.[] | .specialWorkspace.name' | grep -q "special:scratchpad" && echo "true" || echo "false")
 
-if [ "$ACTIVE_WORKSPACE" = "special:scratchpad" ]; then
-    # Scratchpad is visible and active, show indicator
+if [ "$SCRATCHPAD_VISIBLE" = "true" ]; then
+    # Scratchpad is visible on at least one monitor, show indicator
     eww -c "$EWW_CONFIG" update scratchpad_visible=true
 else
-    # Scratchpad is hidden, hide indicator
+    # Scratchpad is hidden on all monitors, hide indicator
     eww -c "$EWW_CONFIG" update scratchpad_visible=false
 fi
 
