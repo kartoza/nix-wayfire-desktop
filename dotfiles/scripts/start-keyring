@@ -2,6 +2,8 @@
 
 # Script to start GNOME Keyring daemon at Hyprland session start
 # This ensures the daemon is running and environment variables are set
+# NOTE: We only start pkcs11,secrets components (NOT ssh)
+# SSH authentication is handled by GPG agent with enableSSHSupport
 
 # Check if gnome-keyring-daemon is already running
 if pgrep -f gnome-keyring-daemon >/dev/null; then
@@ -9,44 +11,28 @@ if pgrep -f gnome-keyring-daemon >/dev/null; then
 else
   echo "Starting GNOME Keyring daemon..."
 
-  # Start gnome-keyring-daemon and export environment variables
+  # Start gnome-keyring-daemon WITHOUT ssh component
   # The --start flag outputs shell commands to set environment variables
-  eval $(gnome-keyring-daemon --start --components=pkcs11,secrets,ssh 2>/dev/null)
+  eval $(gnome-keyring-daemon --start --components=pkcs11,secrets 2>/dev/null)
 
   if [ -n "$GNOME_KEYRING_CONTROL" ]; then
     systemctl --user set-environment GNOME_KEYRING_CONTROL="$GNOME_KEYRING_CONTROL"
   fi
 
-  echo "GNOME Keyring daemon started successfully"
+  echo "GNOME Keyring daemon started successfully (secrets only)"
 fi
 
-# Detect and export the correct SSH agent socket
-# Check for available SSH agents in priority order:
-# 1. GPG agent SSH socket (when GPG is handling SSH)
-# 2. GCR SSH agent (modern gnome-keyring 48.0+)
-# 3. Legacy keyring SSH socket
+# Set SSH agent to GPG agent socket
+# GPG agent is configured with enableSSHSupport and will handle SSH authentication
 USER_ID=$(id -u)
 GPG_SSH_SOCKET="/run/user/${USER_ID}/gnupg/S.gpg-agent.ssh"
-GCR_SSH_SOCKET="/run/user/${USER_ID}/gcr/ssh"
-KEYRING_SSH_SOCKET="/run/user/${USER_ID}/keyring/ssh"
 
-# Check for GPG agent SSH socket first (most common with NixOS)
 if [ -S "$GPG_SSH_SOCKET" ]; then
   export SSH_AUTH_SOCK="$GPG_SSH_SOCKET"
-  echo "Using GPG agent SSH socket at $GPG_SSH_SOCKET"
-# Prefer GCR SSH agent if available (gnome-keyring 48.0+)
-elif [ -S "$GCR_SSH_SOCKET" ]; then
-  export SSH_AUTH_SOCK="$GCR_SSH_SOCKET"
-  echo "Using GCR SSH agent at $GCR_SSH_SOCKET"
-# Fall back to legacy keyring SSH socket
-elif [ -S "$KEYRING_SSH_SOCKET" ]; then
-  export SSH_AUTH_SOCK="$KEYRING_SSH_SOCKET"
-  echo "Using keyring SSH agent at $KEYRING_SSH_SOCKET"
-fi
-
-# Propagate SSH_AUTH_SOCK to systemd user session and dbus
-if [ -n "$SSH_AUTH_SOCK" ]; then
-  systemctl --user set-environment SSH_AUTH_SOCK="$SSH_AUTH_SOCK"
+  systemctl --user set-environment SSH_AUTH_SOCK="$GPG_SSH_SOCKET"
   dbus-update-activation-environment --systemd SSH_AUTH_SOCK 2>/dev/null
-  echo "SSH agent socket set to: $SSH_AUTH_SOCK"
+  echo "SSH agent socket set to GPG agent: $GPG_SSH_SOCKET"
+else
+  echo "Warning: GPG agent SSH socket not found at $GPG_SSH_SOCKET"
+  echo "SSH authentication may not work until GPG agent starts"
 fi

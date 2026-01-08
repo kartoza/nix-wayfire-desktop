@@ -227,15 +227,20 @@ in {
       XDG_SESSION_TYPE = "wayland";
       # Let Hyprland set XDG_CURRENT_DESKTOP automatically to avoid compatibility warnings
       XDG_SESSION_DESKTOP = "hyprland";
-      # Cursor theme and size are managed by home-manager (see home/default.nix)
-      # SSH is handled by GPG agent (configured with enableSSHSupport below)
-      # GPG agent uses gnome-keyring as backend for key storage
-      # Configure GPG agent socket
-      GPG_TTY = "$(tty)";
+
+      # Authentication Architecture:
+      # - GPG agent handles SSH authentication (enableSSHSupport = true)
+      # - GNOME Keyring stores GPG key passphrases securely (components: pkcs11,secrets)
+      # - SSH_AUTH_SOCK points to GPG agent socket (set by start-keyring script)
+      # - unlock-keyring script prompts once at login to unlock keyring
+
+      # GNUPGHOME for GPG agent
       GNUPGHOME = "$HOME/.gnupg";
+
       # Browser configuration
       DEFAULT_BROWSER = "${pkgs.junction}/bin/re.sonny.Junction";
       BROWSER = "re.sonny.Junction";
+
       # Add script directories to PATH (user directories first)
       PATH = [
         "/etc/xdg/fuzzel"
@@ -469,21 +474,7 @@ in {
       DefaultEnvironment="WAYLAND_DISPLAY=wayland-1"
       DefaultEnvironment="XDG_SESSION_DESKTOP=hyprland"
       DefaultEnvironment="XDG_SESSION_TYPE=wayland"
-      DefaultEnvironment="GPG_TTY=$(tty)"
     '';
-
-    # Systemd user service to ensure GPG agent connects to keyring
-    systemd.user.services.gpg-agent-connect = {
-      description = "Connect GPG agent to keyring";
-      after = [ "graphical-session.target" ];
-      wants = [ "graphical-session.target" ];
-      wantedBy = [ "default.target" ];
-      serviceConfig = {
-        Type = "oneshot";
-        ExecStart = "${pkgs.gnupg}/bin/gpg-connect-agent updatestartuptty /bye";
-        Environment = "GPG_TTY=$(tty)";
-      };
-    };
 
     # Enable greetd display manager with regreet greeter
     services.greetd = {
