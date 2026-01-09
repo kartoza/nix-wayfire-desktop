@@ -1,14 +1,14 @@
-# VM configuration for testing Kartoza Hyprland Desktop
+# VM configuration for testing Kartoza Wayfire Desktop
 { config, lib, pkgs, modulesPath, ... }:
 
 {
   imports = [
     (modulesPath + "/virtualisation/qemu-vm.nix")
-    ./modules/hyprland-desktop.nix
+    ./modules/wayfire-desktop.nix
   ];
 
-  # Enable Kartoza Hyprland Desktop with explicit configuration
-  kartoza.hyprland-desktop = {
+  # Enable Kartoza Wayfire Desktop with explicit configuration
+  kartoza.wayfire-desktop = {
     enable = true;
 
     iconTheme = "Papirus";
@@ -64,7 +64,7 @@
 
   # Enable networking
   networking = {
-    hostName = "hyprland-test-vm";
+    hostName = "wayfire-test-vm";
     useDHCP = lib.mkDefault true;
   };
 

@@ -138,11 +138,11 @@ in {
       font-awesome # For waybar icons (required for waybar symbols)
       noto-fonts # Good fallback font family
       noto-fonts-cjk-sans # CJK character support
-      noto-fonts-emoji # Emoji support
+      noto-fonts-color-emoji # Emoji support (renamed from noto-fonts-emoji)
       liberation_ttf # Good sans-serif fonts
       dejavu_fonts # DejaVu fonts (good fallback)
       source-sans # Adobe Source Sans Pro (modern, clean)
-      ubuntu_font_family # Ubuntu fonts (similar to nunito)
+      ubuntu-classic # Ubuntu fonts (renamed from ubuntu_font_family)
       # Cursor themes
       vanilla-dmz # Default cursor theme
       adwaita-icon-theme # Includes Adwaita cursor theme
@@ -641,7 +641,7 @@ in {
       settings = {
         default_session = {
           command =
-            "${pkgs.greetd.tuigreet}/bin/tuigreet --time --cmd 'wayfire -c $(${xdgConfigResolver}/bin/xdg-config-resolve wayfire/wayfire.ini)'";
+            "${pkgs.tuigreet}/bin/tuigreet --time --cmd 'wayfire -c $(${xdgConfigResolver}/bin/xdg-config-resolve wayfire/wayfire.ini)'";
           user = "greeter";
         };
       };
