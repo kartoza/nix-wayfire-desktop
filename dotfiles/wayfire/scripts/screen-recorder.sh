@@ -9,8 +9,8 @@
 # by Tim Sutton (2025) - Based on original Kartoza config
 # -----------------------------------------------------
 
-# Screen recording toggle script for Hyprland with multi-monitor support
-# Integrated with ML4W style and modern Wayland tools
+# Screen recording toggle script for Wayfire with multi-monitor support
+# Integrated with modern Wayland tools
 # Enhanced with separate audio recording and post-processing
 
 VIDEO_PIDFILE="/tmp/wf-recorder.pid"
@@ -25,31 +25,11 @@ VIDEOS_DIR="$HOME/Videos/Screencasts"
 # Ensure videos directory exists
 mkdir -p "$VIDEOS_DIR"
 
-# Function to get monitor where mouse cursor is located
-get_mouse_monitor() {
-  # Get current cursor position
-  local cursor_pos=$(hyprctl cursorpos 2>/dev/null)
-  if [ -z "$cursor_pos" ]; then
-    # Fallback to focused monitor if cursor position unavailable
-    hyprctl monitors -j | jq -r '.[] | select(.focused==true) | .name' 2>/dev/null
-    return
-  fi
-
-  # Parse cursor position (format: "x, y")
-  local cursor_x=$(echo "$cursor_pos" | cut -d',' -f1 | tr -d ' ')
-  local cursor_y=$(echo "$cursor_pos" | cut -d',' -f2 | tr -d ' ')
-
-  # Get monitor information and find which one contains the cursor
-  hyprctl monitors -j | jq -r --argjson cx "$cursor_x" --argjson cy "$cursor_y" '
-    .[] |
-    select(
-      $cx >= .x and
-      $cx < (.x + .width) and
-      $cy >= .y and
-      $cy < (.y + .height)
-    ) |
-    .name
-  ' 2>/dev/null | head -n1
+# Function to get primary/first enabled monitor
+get_primary_monitor() {
+  # Get the first enabled output from wlr-randr
+  # Match lines that don't start with whitespace (output names)
+  wlr-randr | grep -E "^[^ ]" | head -1 | awk '{print $1}' 2>/dev/null
 }
 
 # Function to normalize audio and merge with video
@@ -262,13 +242,8 @@ else
   # Start recording
   timestamp=$(date +%Y%m%d-%H%M%S)
 
-  # Get the monitor where mouse cursor is located
-  focused_output=$(get_mouse_monitor)
-
-  # Fallback to first available output if no mouse monitor detected
-  if [ -z "$focused_output" ] || [ "$focused_output" == "null" ]; then
-    focused_output=$(hyprctl monitors -j | jq -r '.[0].name' 2>/dev/null)
-  fi
+  # Get the primary monitor
+  focused_output=$(get_primary_monitor)
 
   # Prepare filenames
   if [ -n "$focused_output" ] && [ "$focused_output" != "null" ]; then

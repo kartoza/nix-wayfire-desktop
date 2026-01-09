@@ -16,6 +16,16 @@ cd /path/to/nix-wayfire-desktop/dotfiles/waybar
 waybar -c config -s style.css --log-level debug  # Test waybar changes
 ```
 
+### Customizing Wayfire with WCM
+```bash
+wayfire-config-edit edit  # Open Wayfire Config Manager GUI (or press Super+I)
+wayfire-config-edit diff  # Review changes made in WCM
+wayfire-config-edit sync  # Copy changes to Nix repo
+wayfire-config-edit reset # Remove user config override
+```
+
+See [CUSTOMIZING.md](./CUSTOMIZING.md) for the complete workflow.
+
 
 ## Architecture Overview
 

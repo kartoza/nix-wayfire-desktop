@@ -511,6 +511,31 @@ cp /etc/xdg/hypr/scripts/wshowkeys-toggle.sh ~/.config/hypr/scripts/
 
 This module deploys configuration files to `/etc/xdg/` for system-wide availability. Users can override these configurations by creating local dotfiles in their home directories.
 
+### GUI Customization with WCM (Recommended)
+
+The easiest way to customize Wayfire is using the **Wayfire Config Manager (WCM)** GUI:
+
+```bash
+wayfire-config-edit edit
+# Or press Super+I
+```
+
+This opens a graphical interface for customizing:
+- Animations and effects
+- Keybindings
+- Window behavior
+- Workspace settings
+- And more...
+
+**Workflow**:
+1. **Edit**: Press `Super+I` to open WCM
+2. **Test**: Changes apply immediately
+3. **Review**: Run `wayfire-config-edit diff` to see changes
+4. **Sync**: Run `wayfire-config-edit sync` to make permanent
+5. **Commit**: Git commit and `nixos-rebuild switch`
+
+See [CUSTOMIZING.md](./CUSTOMIZING.md) for detailed instructions.
+
 ### Override Priority
 
 Configuration files are loaded in this order (highest to lowest priority):

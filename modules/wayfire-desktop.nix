@@ -178,7 +178,9 @@ in {
       networkmanager
       networkmanagerapplet # System tray applet for NetworkManager
       nwg-launchers # Application launchers for Wayland
+      pasystray # PulseAudio/PipeWire system tray applet
       nwg-look # GTK theme configuration tool
+      polkit_gnome # Polkit authentication agent
       nwg-wrapper # Wrapper script to launch apps with proper env for Wayland
       pipewire # Multimedia framework for audio and video
       power-profiles-daemon # Power profile management
@@ -229,6 +231,109 @@ in {
         else
           echo "/etc/xdg/$config_path"
         fi
+      '')
+      # Wayfire config customization workflow helper
+      (writeScriptBin "wayfire-config-edit" ''
+        #!/usr/bin/env bash
+        # Helper script for editing Wayfire config with WCM and syncing back to NixOS config
+
+        SYSTEM_CONFIG="/etc/xdg/wayfire/wayfire.ini"
+        USER_CONFIG="$HOME/.config/wayfire/wayfire.ini"
+        NIX_REPO="$HOME/dev/nix/nix-wayfire-desktop"
+        NIX_CONFIG="$NIX_REPO/dotfiles/wayfire/wayfire.ini"
+
+        case "$1" in
+          edit)
+            # Copy system config to user config if it doesn't exist
+            if [[ ! -f "$USER_CONFIG" ]]; then
+              echo "Creating user config from system config..."
+              mkdir -p "$(dirname "$USER_CONFIG")"
+              cp "$SYSTEM_CONFIG" "$USER_CONFIG"
+              echo "✓ Created $USER_CONFIG"
+            fi
+
+            echo "Opening Wayfire Config Manager..."
+            echo ""
+            echo "📝 Edit your settings in WCM."
+            echo "💾 Changes are saved to: $USER_CONFIG"
+            echo "🔄 When done, run: wayfire-config-edit sync"
+            echo ""
+            wcm -c "$USER_CONFIG"
+            ;;
+
+          sync)
+            if [[ ! -f "$USER_CONFIG" ]]; then
+              echo "❌ No user config found at $USER_CONFIG"
+              echo "   Run 'wayfire-config-edit edit' first"
+              exit 1
+            fi
+
+            if [[ ! -d "$NIX_REPO" ]]; then
+              echo "❌ Nix repo not found at $NIX_REPO"
+              echo "   Update NIX_REPO path in this script"
+              exit 1
+            fi
+
+            echo "Syncing changes from user config to Nix repo..."
+            cp "$USER_CONFIG" "$NIX_CONFIG"
+            echo "✓ Copied to $NIX_CONFIG"
+            echo ""
+            echo "📋 Next steps:"
+            echo "   1. cd $NIX_REPO"
+            echo "   2. Review changes: git diff dotfiles/wayfire/wayfire.ini"
+            echo "   3. Test: sudo nixos-rebuild test"
+            echo "   4. Commit: git add . && git commit -m 'Update wayfire config'"
+            echo "   5. Apply permanently: sudo nixos-rebuild switch"
+            ;;
+
+          reset)
+            if [[ -f "$USER_CONFIG" ]]; then
+              echo "Removing user config override..."
+              rm "$USER_CONFIG"
+              echo "✓ Removed $USER_CONFIG"
+              echo "   System config from /etc/xdg/ will be used"
+            else
+              echo "No user config to remove"
+            fi
+            ;;
+
+          diff)
+            if [[ ! -f "$USER_CONFIG" ]]; then
+              echo "No user config found"
+              exit 0
+            fi
+            echo "Differences between user config and Nix repo:"
+            diff -u "$NIX_CONFIG" "$USER_CONFIG" || true
+            ;;
+
+          *)
+            cat <<EOF
+Wayfire Config Customization Workflow
+
+Usage: wayfire-config-edit <command>
+
+Commands:
+  edit   - Open WCM to edit user config (~/.config/wayfire/wayfire.ini)
+           Creates user config from system config if it doesn't exist
+
+  sync   - Copy user config changes back to Nix repo for permanent changes
+           Location: $NIX_REPO/dotfiles/wayfire/wayfire.ini
+
+  diff   - Show differences between user config and Nix repo
+
+  reset  - Remove user config override, use system config
+
+Workflow:
+  1. wayfire-config-edit edit    # Customize with WCM GUI
+  2. Test your changes live       # Changes apply immediately
+  3. wayfire-config-edit diff     # Review what changed
+  4. wayfire-config-edit sync     # Copy to Nix repo
+  5. nixos-rebuild switch         # Make permanent
+
+Note: User config (~/.config/) overrides system config (/etc/xdg/)
+EOF
+            ;;
+        esac
       '')
       # Wallpaper setup script
       (writeScriptBin "setup-wallpaper" ''
@@ -426,7 +531,7 @@ in {
             "mako -c $(xdg-config-path mako/kartoza)"
             "swaylock -f -C $(xdg-config-path swaylock/config)"
             "$(xdg-config-path fuzzel/fuzzel-emoji)"
-            "$(xdg-config-path wayfire/scripts/record-toggle.sh)"
+            "$(xdg-config-path wayfire/scripts/screen-recorder.sh)"
             "$(xdg-config-path wayfire/scripts/workspace-switcher.sh)"
             "$(xdg-config-path wayfire/scripts/wshowkeys-toggle.sh)"
             displayOutputs
@@ -543,8 +648,8 @@ in {
       pinentryPackage = pkgs.pinentry-gnome3;
     };
 
-    # Configure PAM for greetd to unlock gnome-keyring on login
-    security.pam.services.greetd = {
+    # Configure PAM for SDDM to unlock gnome-keyring on login
+    security.pam.services.sddm = {
       enableGnomeKeyring = true;
       gnupg.enable = true;
     };
@@ -634,18 +739,53 @@ in {
       };
     };
 
-    # For Wayfire (no display manager), we use greetd
-    # Note: Autologin is configured per-host in hosts/<hostname>/desktop.nix
-    services.greetd = {
+    # Polkit authentication agent for privilege escalation dialogs
+    systemd.user.services.polkit-gnome-authentication-agent = {
+      description = "Polkit GNOME authentication agent";
+      after = [ "graphical-session.target" ];
+      wants = [ "graphical-session.target" ];
+      wantedBy = [ "graphical-session.target" ];
+      serviceConfig = {
+        Type = "simple";
+        ExecStart = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";
+        Restart = "on-failure";
+        RestartSec = 1;
+        TimeoutStopSec = 10;
+      };
+    };
+
+    # Use SDDM display manager with Wayland support
+    services.displayManager.sddm = {
       enable = true;
+      wayland.enable = true;
+      theme = "breeze";
       settings = {
-        default_session = {
-          command =
-            "${pkgs.tuigreet}/bin/tuigreet --time --cmd 'wayfire -c $(${xdgConfigResolver}/bin/xdg-config-resolve wayfire/wayfire.ini)'";
-          user = "greeter";
+        Theme = {
+          Current = "breeze";
+          CursorTheme = cfg.cursorTheme;
+          CursorSize = cfg.cursorSize;
+        };
+        General = {
+          DisplayServer = "wayland";
         };
       };
     };
+
+    # Create Wayfire session file for SDDM
+    services.displayManager.sessionPackages = [
+      (pkgs.writeTextFile {
+        name = "wayfire-wayland-session";
+        destination = "/share/wayland-sessions/wayfire.desktop";
+        text = ''
+          [Desktop Entry]
+          Name=Wayfire
+          Comment=Stacking Wayland compositor with smooth animations
+          Exec=wayfire -c $(${xdgConfigResolver}/bin/xdg-config-resolve wayfire/wayfire.ini)
+          Type=Application
+          DesktopNames=wayfire
+        '';
+      })
+    ];
 
   }; # End of config = mkIf cfg.enable
 }

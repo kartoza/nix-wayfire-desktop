@@ -97,21 +97,17 @@ window#waybar {
 
 /* Application launcher - distinctive Kartoza branding */
 #custom-launcher {
-    background-image: url("kartoza-start-button.png");
-    background-size: 32px 32px;
-    background-repeat: no-repeat;
-    background-position: center;
-    color: transparent;
+    color: #DF9E2F; /* Kartoza orange */
     padding: 8px;
     margin: 4px 4px 4px 4px;
     min-width: 28px;
     border: none;
+    font-size: 18px;
 }
 
 #custom-launcher:hover {
-    color: #0D1A1F;
-    background-color: #162127; 
-    background-image: url("kartoza-start-button-hover.png");
+    color: #FFC04C; /* Lighter orange on hover */
+    background-color: #162127;
 }
 
 /* Spacer stub - subtle divider */
