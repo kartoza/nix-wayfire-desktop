@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Wayfire workspace change trigger script
+# Hyprland workspace change trigger script
 # Called whenever a workspace is changed
 
 # Get current workspace information
@@ -8,29 +8,45 @@ if [[ -n "$1" ]]; then
     CURRENT_WS="$1"
 else
     # Fall back to reading from cache file
-    if [[ -f "$HOME/.cache/wayfire-current-workspace" ]]; then
-        CURRENT_WS=$(cat "$HOME/.cache/wayfire-current-workspace" 2>/dev/null | tr -d '\n')
+    if [[ -f "$HOME/.cache/hyprland-current-workspace" ]]; then
+        CURRENT_WS=$(cat "$HOME/.cache/hyprland-current-workspace" 2>/dev/null | tr -d '\n')
     else
         CURRENT_WS="0"
     fi
 fi
 
-WS_NAME_FILE="$(xdg-config-path wayfire/workspace-names.conf 2>/dev/null || echo "$HOME/.config/wayfire/workspace-names.conf")"
-WS_NAME=$(cat "$WS_NAME_FILE" 2>/dev/null | grep "^${CURRENT_WS}=" | cut -d'=' -f2 || echo "Workspace ${CURRENT_WS}")
+WS_NAME_FILE="$HOME/.config/hypr/workspace-names.conf"
+SYSTEM_WORKSPACE_NAMES_FILE="/etc/xdg/hypr/workspace-names.conf"
+
+# Ensure user config directory exists
+mkdir -p "$(dirname "$WS_NAME_FILE")"
+
+# Copy system default if user config doesn't exist
+if [[ ! -f "$WS_NAME_FILE" && -f "$SYSTEM_WORKSPACE_NAMES_FILE" ]]; then
+    cp "$SYSTEM_WORKSPACE_NAMES_FILE" "$WS_NAME_FILE"
+fi
+
+# Check if this is a special workspace (contains non-numeric characters)
+if [[ "$CURRENT_WS" =~ ^[0-9]+$ ]]; then
+    # Regular workspace - use number
+    WS_NAME=$(cat "$WS_NAME_FILE" 2>/dev/null | grep "^${CURRENT_WS}=" | cut -d'=' -f2 || echo "Workspace ${CURRENT_WS}")
+    WS_DISPLAY_NUMBER="$((CURRENT_WS + 1))"
+else
+    # Special workspace - use name
+    WS_NAME=$(cat "$WS_NAME_FILE" 2>/dev/null | grep "^${CURRENT_WS}=" | cut -d'=' -f2 || echo "${CURRENT_WS^}")
+    WS_DISPLAY_NUMBER="${CURRENT_WS^}"  # Capitalize first letter
+fi
 
 # Log the workspace change
-echo "$(date '+%Y-%m-%d %H:%M:%S') - Changed to workspace: ${CURRENT_WS} (${WS_NAME})" >> ~/.local/state/wayfire-workspace.log
+echo "$(date '+%Y-%m-%d %H:%M:%S') - Changed to workspace: ${CURRENT_WS} (${WS_NAME})" >> ~/.local/state/hyprland-workspace.log
 
 # Create log directory if it doesn't exist
 mkdir -p ~/.local/state
 
-# Optional: Send notification about workspace change
-if command -v notify-send >/dev/null 2>&1; then
-    notify-send -t 1000 "Workspace" "${WS_NAME}" -i applications-office
+# Show workspace overlay with eww (slides in from right, docked to edge)
+if command -v workspace-overlay.sh >/dev/null 2>&1; then
+    workspace-overlay.sh "$WS_DISPLAY_NUMBER" "${WS_NAME}" &
 fi
-
-# Optional: Update waybar if it has a workspace widget
-pkill -SIGUSR1 waybar 2>/dev/null || true
 
 # You can add more custom actions here:
 # - Update workspace-specific configs

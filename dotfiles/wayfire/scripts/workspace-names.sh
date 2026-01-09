@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Wayfire workspace name management script
+# Hyprland workspace name management script
 
-WORKSPACE_NAMES_FILE="$(xdg-config-path wayfire/workspace-names.conf 2>/dev/null || echo "$HOME/.config/wayfire/workspace-names.conf")"
-SYSTEM_WORKSPACE_NAMES_FILE="/etc/xdg/wayfire/workspace-names.conf"
+WORKSPACE_NAMES_FILE="$HOME/.config/hypr/workspace-names.conf"
+SYSTEM_WORKSPACE_NAMES_FILE="/etc/xdg/hypr/workspace-names.conf"
 
 # Ensure user config directory exists
 mkdir -p "$(dirname "$WORKSPACE_NAMES_FILE")"
@@ -55,12 +55,12 @@ list_names() {
 
 # Get current workspace number
 get_current() {
-    # Use wayfire workspace manager for reliable workspace detection
-    if [[ -x "$(command -v wayfire-workspace-manager.sh)" ]]; then
-        wayfire-workspace-manager.sh get
+    # Use hyprland workspace manager for reliable workspace detection
+    if [[ -x "$(command -v hyprland-workspace-manager.sh)" ]]; then
+        hyprland-workspace-manager.sh get
     else
         # Fallback to cache file reading
-        local cache_file="$HOME/.cache/wayfire-current-workspace"
+        local cache_file="$HOME/.cache/hyprland-current-workspace"
         if [[ -f "$cache_file" ]]; then
             local workspace=$(cat "$cache_file" 2>/dev/null | tr -d '\n')
             if [[ "$workspace" =~ ^[0-8]$ ]]; then

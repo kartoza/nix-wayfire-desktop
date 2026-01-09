@@ -1,21 +1,33 @@
 #!/usr/bin/env bash
+# by Tim Sutton (2025) - Integrated with ML4W style
+# -----------------------------------------------------
 
-# wshowkeys toggle script for Wayfire
-# Toggles wshowkeys on-screen key display on/off
+# wshowkeys toggle script for Hyprland
+# Shows on-screen key display with Kartoza theming
 
 PIDFILE="$XDG_RUNTIME_DIR/wshowkeys.pid"
 
 # Check if wshowkeys is running
 if [ -f "$PIDFILE" ] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
   # wshowkeys is running, kill it
-  pkill showkey
+  pkill wshowkeys
   rm -f "$PIDFILE"
-  notify-send "wshowkeys" "Key display disabled" --icon=input-keyboard
+  notify-send "Key Display" "On-screen keys disabled" --icon=input-keyboard --urgency=low
   echo "disabled"
 else
-  # wshowkeys is not running, start it
-  wshowkeys -F "Nurito 90" -t 1 -m 90 -a top -a right -b "#51585D" -f "#ffffff" -s "#E4AE52"
+  # wshowkeys is not running, start it with Kartoza theming
+  # Colors: Orange text (#DF9E2F), Blue special keys (#569FC6), dark background
+  wshowkeys \
+    -f "Nurito 24" \
+    -t 2 \
+    -m 20 \
+    -a top \
+    -a right \
+    -b "#1a110f" \
+    -f "#DF9E2F" \
+    -s "#569FC6" &
+
   echo $! >"$PIDFILE"
-  notify-send "wshowkeys" "Key display enabled" --icon=input-keyboard
+  notify-send "Key Display" "On-screen keys enabled" --icon=input-keyboard --urgency=low
   echo "enabled"
 fi
