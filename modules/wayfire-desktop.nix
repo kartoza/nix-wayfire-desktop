@@ -1,40 +1,23 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 
 let
-  cfg = config.kartoza.wayfire-desktop;
+  cfg = config.wayfire-desktop;
 
   # Use the icon theme from the module configuration
   iconThemeName = cfg.iconTheme;
 
-  # Helper function to find config files in XDG paths (user config takes precedence)
-  findConfigFile = configPath: ''
-    if [[ -f "$HOME/.config/${configPath}" ]]; then
-      echo "$HOME/.config/${configPath}"
-    else
-      echo "/etc/xdg/${configPath}"
-    fi
-  '';
-
-  # Helper script to resolve XDG config paths at runtime
-  xdgConfigResolver = pkgs.writeScriptBin "xdg-config-resolve" ''
-    #!/usr/bin/env bash
-    # Resolves XDG config paths, checking user config first, then system
-    config_path="$1"
-    if [[ -f "$HOME/.config/$config_path" ]]; then
-      echo "$HOME/.config/$config_path"
-    elif [[ -f "/etc/xdg/$config_path" ]]; then
-      echo "/etc/xdg/$config_path"
-    else
-      echo "Config file not found: $config_path" >&2
-      exit 1
-    fi
-  '';
-in {
+in
+{
   options = {
-    kartoza.wayfire-desktop = {
-      enable = mkEnableOption "Kartoza Wayfire Desktop Environment";
+    wayfire-desktop = {
+      enable = mkEnableOption "Wayfire Desktop Environment";
 
       iconTheme = mkOption {
         type = types.str;
@@ -51,33 +34,19 @@ in {
       fractionalScaling = mkOption {
         type = types.float;
         default = 1.0;
-        description =
-          "Fractional scaling factor for displays (1.0 = 100%, 1.25 = 125%, 1.5 = 150%, etc.)";
+        description = "Fractional scaling factor for displays (1.0 = 100%, 1.25 = 125%, 1.5 = 150%, etc.)";
       };
 
       qtTheme = mkOption {
         type = types.str;
         default = "qt5ct";
-        description =
-          "Qt platform theme to use for Qt applications (qt5ct, gnome, gtk2, kde, fusion)";
+        description = "Qt platform theme to use for Qt applications (qt5ct, gnome, gtk2, kde, fusion)";
       };
 
       darkTheme = mkOption {
         type = types.bool;
         default = true;
-        description =
-          "Whether to use dark theme for GTK applications (defaults to true)";
-      };
-
-      displayScaling = mkOption {
-        type = types.attrsOf types.float;
-        default = { };
-        example = {
-          "eDP-1" = 1.5;
-          "DP-9" = 1.0;
-        };
-        description =
-          "Per-display scaling factors. Use display names as keys (e.g., eDP-1, DP-9) and scaling factors as values.";
+        description = "Whether to use dark theme for GTK applications (defaults to true)";
       };
 
       cursorTheme = mkOption {
@@ -91,27 +60,12 @@ in {
         default = 24;
         description = "Cursor size in pixels";
       };
-
-      keyboardLayouts = mkOption {
-        type = types.listOf types.str;
-        default = [ "us" "pt" ];
-        example = [ "us" "de" "fr" ];
-        description = "List of keyboard layouts (first layout is default, others accessible via Alt+Shift toggle)";
-      };
-
-      wallpaper = mkOption {
-        type = types.str;
-        default = "/etc/kartoza-wallpaper.png";
-        example = "/home/user/Pictures/my-wallpaper.jpg";
-        description = "Path to wallpaper image used for both desktop background and swaylock screen";
-      };
     };
   };
 
   config = mkIf cfg.enable {
 
-    # Deploy essential Wayfire dotfiles at system level
-    # Enable the X server.
+    # Enable X server support (required for XWayland compatibility)
     services.xserver.enable = true;
 
     programs.wayfire = {
@@ -130,9 +84,7 @@ in {
     security.polkit.enable = true;
 
     environment.systemPackages = with pkgs; [
-      # XDG config path resolver utility
-      xdgConfigResolver
-      # Default icon theme (Papirus) - can be overridden by kartoza.nix or other configs
+      # Default icon theme
       papirus-icon-theme
       # Essential fonts for waybar and wayfire
       font-awesome # For waybar icons (required for waybar symbols)
@@ -219,204 +171,7 @@ in {
       vanilla-dmz # Default cursor theme
       # Image processing for wallpapers
       imagemagick # For creating default wallpaper
-      # Deploy script for system-wide Wayfire config management
-      jq # Required for waybar config building
-      # XDG config path helper for use in config files
-      (writeScriptBin "xdg-config-path" ''
-        #!/usr/bin/env bash
-        # Returns the path to a config file, checking user config first
-        config_path="$1"
-        if [[ -f "$HOME/.config/$config_path" ]]; then
-          echo "$HOME/.config/$config_path"
-        else
-          echo "/etc/xdg/$config_path"
-        fi
-      '')
-      # Wayfire config customization workflow helper
-      (writeScriptBin "wayfire-config-edit" ''
-        #!/usr/bin/env bash
-        # Helper script for editing Wayfire config with WCM and syncing back to NixOS config
-
-        SYSTEM_CONFIG="/etc/xdg/wayfire/wayfire.ini"
-        USER_CONFIG="$HOME/.config/wayfire/wayfire.ini"
-        NIX_REPO="$HOME/dev/nix/nix-wayfire-desktop"
-        NIX_CONFIG="$NIX_REPO/dotfiles/wayfire/wayfire.ini"
-
-        case "$1" in
-          edit)
-            # Copy system config to user config if it doesn't exist
-            if [[ ! -f "$USER_CONFIG" ]]; then
-              echo "Creating user config from system config..."
-              mkdir -p "$(dirname "$USER_CONFIG")"
-              cp "$SYSTEM_CONFIG" "$USER_CONFIG"
-              echo "✓ Created $USER_CONFIG"
-            fi
-
-            echo "Opening Wayfire Config Manager..."
-            echo ""
-            echo "📝 Edit your settings in WCM."
-            echo "💾 Changes are saved to: $USER_CONFIG"
-            echo "🔄 When done, run: wayfire-config-edit sync"
-            echo ""
-            wcm -c "$USER_CONFIG"
-            ;;
-
-          sync)
-            if [[ ! -f "$USER_CONFIG" ]]; then
-              echo "❌ No user config found at $USER_CONFIG"
-              echo "   Run 'wayfire-config-edit edit' first"
-              exit 1
-            fi
-
-            if [[ ! -d "$NIX_REPO" ]]; then
-              echo "❌ Nix repo not found at $NIX_REPO"
-              echo "   Update NIX_REPO path in this script"
-              exit 1
-            fi
-
-            echo "Syncing changes from user config to Nix repo..."
-            cp "$USER_CONFIG" "$NIX_CONFIG"
-            echo "✓ Copied to $NIX_CONFIG"
-            echo ""
-            echo "📋 Next steps:"
-            echo "   1. cd $NIX_REPO"
-            echo "   2. Review changes: git diff dotfiles/wayfire/wayfire.ini"
-            echo "   3. Test: sudo nixos-rebuild test"
-            echo "   4. Commit: git add . && git commit -m 'Update wayfire config'"
-            echo "   5. Apply permanently: sudo nixos-rebuild switch"
-            ;;
-
-          reset)
-            if [[ -f "$USER_CONFIG" ]]; then
-              echo "Removing user config override..."
-              rm "$USER_CONFIG"
-              echo "✓ Removed $USER_CONFIG"
-              echo "   System config from /etc/xdg/ will be used"
-            else
-              echo "No user config to remove"
-            fi
-            ;;
-
-          diff)
-            if [[ ! -f "$USER_CONFIG" ]]; then
-              echo "No user config found"
-              exit 0
-            fi
-            echo "Differences between user config and Nix repo:"
-            diff -u "$NIX_CONFIG" "$USER_CONFIG" || true
-            ;;
-
-          *)
-            cat <<EOF
-Wayfire Config Customization Workflow
-
-Usage: wayfire-config-edit <command>
-
-Commands:
-  edit   - Open WCM to edit user config (~/.config/wayfire/wayfire.ini)
-           Creates user config from system config if it doesn't exist
-
-  sync   - Copy user config changes back to Nix repo for permanent changes
-           Location: $NIX_REPO/dotfiles/wayfire/wayfire.ini
-
-  diff   - Show differences between user config and Nix repo
-
-  reset  - Remove user config override, use system config
-
-Workflow:
-  1. wayfire-config-edit edit    # Customize with WCM GUI
-  2. Test your changes live       # Changes apply immediately
-  3. wayfire-config-edit diff     # Review what changed
-  4. wayfire-config-edit sync     # Copy to Nix repo
-  5. nixos-rebuild switch         # Make permanent
-
-Note: User config (~/.config/) overrides system config (/etc/xdg/)
-EOF
-            ;;
-        esac
-      '')
-      # Wallpaper setup script
-      (writeScriptBin "setup-wallpaper" ''
-        #!/usr/bin/env bash
-
-        # Create wallpapers directory
-        mkdir -p "$HOME/wallpapers"
-
-        # Define wallpaper paths
-        SYSTEM_WALLPAPER="/etc/kartoza-wallpaper.png"
-        USER_WALLPAPER="$HOME/wallpapers/timos-wallpaper.png"
-
-        # If no user wallpaper exists, copy the Kartoza default
-        if [[ ! -f "$USER_WALLPAPER" ]]; then
-          if [[ -f "$SYSTEM_WALLPAPER" ]]; then
-            cp "$SYSTEM_WALLPAPER" "$USER_WALLPAPER"
-            echo "Copied Kartoza default wallpaper"
-          else
-            # Fallback: create a simple gradient
-            ${pkgs.imagemagick}/bin/convert -size 1920x1080 \
-              gradient:'#2d3748-#4a5568' \
-              "$USER_WALLPAPER"
-            echo "Created fallback gradient wallpaper"
-          fi
-        fi
-
-        # Initialize swww and set wallpaper
-        swww init || true
-        swww img "$USER_WALLPAPER"
-      '')
-      # Keyring unlock script for login
-      (writeScriptBin "unlock-keyring" ''
-        #!/usr/bin/env bash
-
-        # Script to unlock GNOME Keyring at Wayfire login
-        # This ensures the keyring is available for SSH keys and other secrets
-
-        # Check if gnome-keyring-daemon is already running
-        if pgrep -x gnome-keyring-daemon >/dev/null; then
-            echo "GNOME Keyring daemon is already running"
-
-            # Check if the default keyring is unlocked
-            if ! ${pkgs.libsecret}/bin/secret-tool lookup service test 2>/dev/null; then
-                echo "Keyring appears to be locked, attempting to unlock..."
-
-                # Use zenity to prompt for password to unlock keyring
-                password=$(${pkgs.zenity}/bin/zenity --password --title="Unlock Keyring" --text="Please enter your password to unlock the keyring:")
-
-                if [ -n "$password" ]; then
-                    # Attempt to unlock keyring
-                    echo -n "$password" | ${pkgs.gnome-keyring}/bin/gnome-keyring-daemon --unlock --daemonize
-
-                    if [ $? -eq 0 ]; then
-                        ${pkgs.libnotify}/bin/notify-send "Keyring Unlocked" "Your keyring has been successfully unlocked"
-                        
-                        # Start GPG agent and connect to keyring
-                        export GPG_TTY=$(tty)
-                        ${pkgs.gnupg}/bin/gpg-connect-agent updatestartuptty /bye >/dev/null 2>&1
-                        
-                        # Test GPG functionality
-                        if ${pkgs.gnupg}/bin/gpg --list-secret-keys >/dev/null 2>&1; then
-                            echo "GPG keys are now accessible"
-                        fi
-                    else
-                        ${pkgs.libnotify}/bin/notify-send "Keyring Unlock Failed" "Failed to unlock keyring with provided password"
-                    fi
-                else
-                    ${pkgs.libnotify}/bin/notify-send "Keyring Unlock Cancelled" "Keyring unlock was cancelled"
-                fi
-            else
-                echo "Keyring is already unlocked"
-                
-                # Ensure GPG agent is connected
-                export GPG_TTY=$(tty)
-                ${pkgs.gnupg}/bin/gpg-connect-agent updatestartuptty /bye >/dev/null 2>&1
-                
-                ${pkgs.libnotify}/bin/notify-send "Keyring Ready" "Your keyring is already unlocked and ready"
-            fi
-        else
-            echo "GNOME Keyring daemon not running, this should have been started by PAM"
-            ${pkgs.libnotify}/bin/notify-send "Keyring Error" "GNOME Keyring daemon is not running"
-        fi
-      '')
+      jq # Useful JSON processor
     ];
 
     environment.sessionVariables = {
@@ -433,21 +188,12 @@ EOF
       # Browser configuration
       DEFAULT_BROWSER = "${pkgs.junction}/bin/re.sonny.Junction";
       BROWSER = "re.sonny.Junction";
-      # Add script directories to PATH (user directories first)
-      PATH = [
-        "$HOME/.config/fuzzel"
-        "$HOME/.config/wayfire/scripts"
-        "$HOME/.config/waybar/scripts"
-        "/etc/xdg/fuzzel"
-        "/etc/xdg/wayfire/scripts"
-        "/etc/xdg/waybar/scripts"
-      ];
     };
 
     environment.variables = {
-      # XDG environment for finding configs - user configs in ~/.config take precedence
+      # XDG environment for config discovery
       XDG_CONFIG_DIRS = "/etc/xdg";
-      XDG_DATA_DIRS = mkDefault "/etc/xdg:/usr/local/share:/usr/share";
+      XDG_DATA_DIRS = mkDefault "/usr/local/share:/usr/share";
       # Cursor theme
       XCURSOR_THEME = cfg.cursorTheme;
       XCURSOR_SIZE = toString cfg.cursorSize;
@@ -462,7 +208,7 @@ EOF
       CLUTTER_BACKEND = "wayland";
       # XWayland fallback
       QT_QPA_PLATFORMTHEME = cfg.qtTheme;
-      
+
       # Qt scaling and sizing fixes to prevent dialog compression
       QT_AUTO_SCREEN_SCALE_FACTOR = "1";
       QT_ENABLE_HIGHDPI_SCALING = "1";
@@ -474,8 +220,6 @@ EOF
     programs.dconf.enable = true;
 
     # Set GTK settings system-wide
-    # Note: cursor theme is managed by home-manager
-    # Icon theme is centrally managed via kartoza.nix
     environment.etc."gtk-3.0/settings.ini".text = ''
       [Settings]
       gtk-icon-theme-name=${iconThemeName}
@@ -490,136 +234,6 @@ EOF
       gtk-application-prefer-dark-theme=${lib.boolToString cfg.darkTheme}
     '';
 
-    # Deploy Wayfire configuration files system-wide using standard paths
-    environment.etc = {
-      # Wayfire main config - generated from template with proper substitution
-      "xdg/wayfire/wayfire.ini" = {
-        text = let
-          baseConfig = lib.readFile ../dotfiles/wayfire/wayfire.ini;
-          # Generate per-display output sections
-          displayOutputs = lib.concatStringsSep "\n\n" (lib.mapAttrsToList
-            (display: scaling: ''
-              [output:${display}]
-              depth = 8
-              mode = auto
-              position = auto
-              scale = ${toString scaling}
-              transform = normal
-              vrr = false
-            '') cfg.displayScaling);
-
-          # Replace template placeholders with proper values
-          configWithSubstitutions = lib.replaceStrings [
-            "@WALLPAPER_COMMAND@"
-            "@CURSOR_THEME@"
-            "@CURSOR_SIZE@"
-            "@FRACTIONAL_SCALING@"
-            "@KEYBOARD_LAYOUTS@"
-            "@NOTIFICATION_COMMAND@"
-            "@SWAYLOCK_COMMAND@"
-            "@EMOJI_COMMAND@"
-            "@RECORD_TOGGLE_COMMAND@"
-            "@WORKSPACE_SWITCHER_COMMAND@"
-            "@WSHOWKEYS_TOGGLE_COMMAND@"
-            "@DISPLAY_OUTPUTS@"
-          ] [
-            "swww init && swww img ${cfg.wallpaper}"
-            "${cfg.cursorTheme}"
-            "${toString cfg.cursorSize}"
-            "${toString cfg.fractionalScaling}"
-            "${lib.concatStringsSep "," cfg.keyboardLayouts}"
-            "mako -c $(xdg-config-path mako/kartoza)"
-            "swaylock -f -C $(xdg-config-path swaylock/config)"
-            "$(xdg-config-path fuzzel/fuzzel-emoji)"
-            "$(xdg-config-path wayfire/scripts/screen-recorder.sh)"
-            "$(xdg-config-path wayfire/scripts/workspace-switcher.sh)"
-            "$(xdg-config-path wayfire/scripts/wshowkeys-toggle.sh)"
-            displayOutputs
-          ] baseConfig;
-        in configWithSubstitutions;
-      };
-      "xdg/wayfire/scripts".source = ../dotfiles/wayfire/scripts;
-      # Wayfire workspace names configuration
-      "xdg/wayfire/workspace-names.conf".source = ../dotfiles/wayfire/workspace-names.conf;
-      # Waybar configuration - standard XDG location
-      "xdg/waybar/style.css".source = ../dotfiles/waybar/style.css;
-      # Build combined waybar config from modular JSON files
-      "xdg/waybar/config" = {
-        source = pkgs.runCommand "waybar-config-wayfire" {
-          nativeBuildInputs = [ pkgs.jq ];
-        } ''
-          src=${../dotfiles/waybar/config.d}
-
-          # Use Wayfire base config instead of regular base
-          cat "$src/00-base-wayfire.json" > config.json
-
-          # Merge all other config fragments except sway-specific ones and generic power
-          for file in "$src"/*.json; do
-            filename=$(basename "$file")
-            # Skip base files, sway-specific modules, and generic power (use wayfire-specific)
-            if [[ "$filename" != "00-base.json" && "$filename" != "00-base-wayfire.json" &&
-                  "$filename" != "90-sway-"* && "$filename" != "90-custom-power.json" ]]; then
-              echo "Merging $filename"
-              jq -s '.[0] * .[1]' config.json "$file" > temp.json
-              mv temp.json config.json
-            fi
-          done
-
-          # Fix script paths to use /etc/xdg instead of /etc/waybar
-          sed 's|/etc/waybar/scripts/|/etc/xdg/waybar/scripts/|g' config.json > final_config.json
-
-          cp final_config.json $out
-        '';
-      };
-      # Note: Using fuzzel as launcher instead of wofi
-      # Mako notification config - standard XDG location
-      "xdg/mako/kartoza".source = ../dotfiles/mako/kartoza;
-      # Notification sound file
-      "xdg/mako/sounds/notification.wav".source = ../resources/sounds/notification.wav;
-      # nwg-launchers configs - standard XDG location
-      "xdg/nwg-launchers/nwggrid/style.css".source =
-        ../dotfiles/nwggrid/style.css;
-      "xdg/nwg-launchers/nwgbar/style.css".source =
-        ../dotfiles/nwgbar/style.css;
-      # Waybar scripts and resources
-      "xdg/waybar/scripts".source = ../dotfiles/waybar/scripts;
-      "xdg/waybar/kartoza-logo-neon.png".source =
-        ../resources/kartoza-logo-neon.png;
-      "xdg/waybar/kartoza-logo-neon-bright.png".source =
-        ../resources/kartoza-logo-neon-bright.png;
-      # Kartoza default wallpaper
-      "kartoza-wallpaper.png".source = ../resources/KartozaBackground.png;
-      # Swaylock configuration - standard XDG location
-      "xdg/swaylock/config" = {
-        text = let
-          baseConfig = lib.readFile ../dotfiles/swaylock/config;
-          # Replace wallpaper path with configured wallpaper
-          configWithWallpaper = lib.replaceStrings [
-            "image=/etc/kartoza-wallpaper.png"
-          ] [
-            "image=${cfg.wallpaper}"
-          ] baseConfig;
-        in configWithWallpaper;
-      };
-      # Fuzzel emoji script - standard location for executables
-      "xdg/fuzzel/fuzzel-emoji".source = ../dotfiles/fuzzel/fuzzel-emoji;
-      # Qt5ct configuration for proper dialog sizing
-      "xdg/qt5ct/qt5ct.conf".source = ../dotfiles/qt5ct/qt5ct.conf;
-      "xdg/qt5ct/qss/kartoza-qt-fixes.qss".source = ../dotfiles/qt5ct/qss/kartoza-qt-fixes.qss;
-      # GPG agent configuration
-      "skel/.gnupg/gpg-agent.conf".text = ''
-        pinentry-program ${pkgs.pinentry-gnome3}/bin/pinentry-gnome3
-        default-cache-ttl 28800
-        max-cache-ttl 86400
-        enable-ssh-support
-      '';
-      "skel/.gnupg/gpg.conf".text = ''
-        use-agent
-        keyserver hkps://keys.openpgp.org
-        keyserver-options auto-key-retrieve
-      '';
-    };
-
     # Required for screen sharing
     services.pipewire = {
       enable = true;
@@ -629,7 +243,9 @@ EOF
       jack.enable = true;
     };
 
-    services.dbus = { enable = true; };
+    services.dbus = {
+      enable = true;
+    };
 
     # Enable automounting for removable media (USB drives, etc.)
     services.udisks2.enable = true;
@@ -669,7 +285,9 @@ EOF
     };
 
     # Configure PAM for sudo to maintain keyring access
-    security.pam.services.sudo = { enableGnomeKeyring = true; };
+    security.pam.services.sudo = {
+      enableGnomeKeyring = true;
+    };
 
     # Configure setuid wrapper for wshowkeys to capture keyboard events
     security.wrappers.wshowkeys = {
@@ -688,7 +306,10 @@ EOF
       # Configure portal backends for Wayfire
       config = {
         wayfire = {
-          default = lib.mkForce [ "gtk" "wlr" ];
+          default = lib.mkForce [
+            "gtk"
+            "wlr"
+          ];
           "org.freedesktop.impl.portal.FileChooser" = lib.mkForce [ "gtk" ];
           "org.freedesktop.impl.portal.AppChooser" = lib.mkForce [ "gtk" ];
           "org.freedesktop.impl.portal.ScreenCast" = lib.mkForce [ "wlr" ];
@@ -773,17 +394,18 @@ EOF
 
     # Create Wayfire session file for SDDM
     services.displayManager.sessionPackages = [
-      (pkgs.writeTextFile {
+      (pkgs.writeTextFile rec {
         name = "wayfire-wayland-session";
         destination = "/share/wayland-sessions/wayfire.desktop";
         text = ''
           [Desktop Entry]
           Name=Wayfire
           Comment=Stacking Wayland compositor with smooth animations
-          Exec=wayfire -c $(${xdgConfigResolver}/bin/xdg-config-resolve wayfire/wayfire.ini)
+          Exec=wayfire
           Type=Application
           DesktopNames=wayfire
         '';
+        passthru.providedSessions = [ "wayfire" ];
       })
     ];
 

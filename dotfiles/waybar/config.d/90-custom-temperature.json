@@ -2,6 +2,6 @@
   "format": "{}",
   "return-type": "json",
   "interval": 5,
-  "exec": "/etc/xdg/waybar/scripts/temperature.sh",
+  "exec": "~/.config/waybar/scripts/temperature.sh",
   "tooltip": true
 }}

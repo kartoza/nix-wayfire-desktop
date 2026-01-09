@@ -2,261 +2,171 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Project Overview
+
+This is a **minimal NixOS flake** that provides a generic Wayfire desktop environment. The module focuses on:
+
+- Installing Wayfire compositor and essential Wayland packages
+- Configuring system services (PipeWire, NetworkManager, gnome-keyring, etc.)
+- Setting environment variables for Wayland compatibility
+- **NOT** managing user dotfiles or configurations
+
+## Architecture Philosophy
+
+### What This Module Does
+
+✅ Provides a working Wayfire base system
+✅ Includes all necessary packages and dependencies
+✅ Configures system-level services
+✅ Sets up display manager (SDDM)
+✅ Configures XDG portals for screen sharing
+
+### What This Module Does NOT Do
+
+❌ Deploy dotfiles to `/etc/xdg/` or any other location
+❌ Include opinionated configurations
+❌ Manage user-specific customizations
+❌ Provide pre-configured keybindings or themes
+
+**Users are expected to manage their own dotfiles** in `~/.config/` or via a separate dotfiles repository.
+
+## Project Structure
+
+```
+nix-wayfire-desktop/
+├── flake.nix                    # Flake definition
+├── modules/
+│   └── wayfire-desktop.nix      # Main NixOS module (minimal, no dotfile deployment)
+├── dotfiles/                    # DEPRECATED - for reference only, not deployed
+├── resources/                   # DEPRECATED - for reference only
+├── vm-test.nix                  # Test VM configuration
+└── README.md                    # User documentation
+```
+
 ## Development Commands
 
 ### Build and Format
-- `nix develop` - Enter development shell with all dependencies
+- `nix develop` - Enter development shell with formatting tools
 - `nix fmt` - Format all Nix files using nixfmt-rfc-style
-- `nix flake check` - Check flake validity and formatting
+- `nix flake check` - Validate flake and check formatting
 
-### Testing Waybar Configuration
+### Testing
 ```bash
-cd /path/to/nix-wayfire-desktop/dotfiles/waybar
-./build-config.sh  # Rebuild modular waybar config
-waybar -c config -s style.css --log-level debug  # Test waybar changes
+# Build and run test VM
+nix build .#nixosConfigurations.vm-test.config.system.build.vm
+./result/bin/run-nixos-vm
 ```
 
-### Customizing Wayfire with WCM
-```bash
-wayfire-config-edit edit  # Open Wayfire Config Manager GUI (or press Super+I)
-wayfire-config-edit diff  # Review changes made in WCM
-wayfire-config-edit sync  # Copy changes to Nix repo
-wayfire-config-edit reset # Remove user config override
-```
+## Module Configuration
 
-See [CUSTOMIZING.md](./CUSTOMIZING.md) for the complete workflow.
+### Available Options
 
+The module exposes these configuration options:
 
-## Architecture Overview
-
-This is a **standalone NixOS flake** that provides a complete Wayfire desktop environment configuration. It's designed to be imported into any NixOS system as a module.
-
-### Core Components
-
-1. **Flake Structure** (`flake.nix`):
-   - Exports `nixosModules.wayfire-desktop` for importing into NixOS configs
-   - Provides development shell with formatting tools
-   - Uses nixpkgs 25.05
-
-2. **Main Module** (`modules/wayfire-desktop.nix`):
-   - Comprehensive Wayfire desktop setup with all dependencies
-   - Configures services: PipeWire, NetworkManager, gnome-keyring, greetd
-   - Deploys dotfiles to `/etc/xdg` for system-wide availability with user override support
-   - Includes keyring unlock utility and XDG config path resolution tools
-
-3. **Dotfiles Structure** (`dotfiles/`):
-   - **wayfire/**: Wayfire compositor config with scripts
-   - **waybar/**: Modular status bar config system with working taskbar (see Waybar section below)
-   - **wofi/**: Application launcher styling
-   - **mako/**: Notification daemon theming (Kartoza branded) with custom notification sound
-   - **fuzzel/**: Additional launcher utilities
-
-### Waybar Modular Configuration System
-
-The waybar config uses a **unique modular approach** for easier maintenance:
-
-- `config.d/*.json` - Individual feature modules (base, widgets, custom modules)
-- `build-config.sh` - Merges JSON files using `jq` into final `config`
-- Numbering system: `00-` (base), `10-` (core modules), `90-` (UI widgets)
-- Build process automatically includes `wlr/taskbar` and `wlr/workspaces` modules for Wayfire
-- Taskbar works with proper wlr protocols for window management
-
-### Theme Integration
-
-- Expects `config.kartoza.theme.iconTheme.name` from importing flake (defaults to Papirus)
-- Kartoza branding with custom logos and color schemes
-- Orange accent color (`#DF9E2F`) for active window borders in Wayfire
-
-### Keyboard Layout Configuration
-
-The module provides configurable keyboard layouts with intelligent switching:
-
-- **Default**: `["us", "pt"]` (US English, Portuguese)
-- **Customizable**: Set any list of layouts via `keyboardLayouts` option
-- **Smart Toggle**: Waybar script automatically reads layouts from Wayfire config
-- **Alt+Shift**: Hardware toggle between configured layouts
-- **Display Names**: Automatic conversion (us→EN, de→DE, fr→FR, pt→PT, etc.)
-
-Example configuration:
 ```nix
-kartoza.wayfire-desktop = {
+wayfire-desktop = {
   enable = true;
-  keyboardLayouts = [ "us" "de" "fr" ];  # US, German, French
+
+  # Theme options
+  iconTheme = "Papirus";
+  gtkTheme = "Adwaita";
+  darkTheme = true;
+  qtTheme = "qt5ct";
+
+  # Display options
+  fractionalScaling = 1.0;
+  cursorTheme = "Vanilla-DMZ";
+  cursorSize = 24;
 };
 ```
 
-### Wallpaper Configuration
+### What the Module Configures
 
-The module provides unified wallpaper management across desktop and lock screen:
+1. **Packages**: Installs Wayfire and all essential Wayland tools
+2. **Services**:
+   - Display manager (SDDM)
+   - Audio (PipeWire)
+   - Keyring (gnome-keyring)
+   - Network (NetworkManager)
+   - Power management
+3. **Environment Variables**: Sets up Wayland-specific variables
+4. **GTK/Qt Themes**: Applies theme settings system-wide
+5. **XDG Portals**: Configures screen sharing support
 
-- **Default**: `/etc/wallpapers/kartoza.png` (Kartoza branded wallpaper)
-- **Configurable**: Set custom wallpaper path via `wallpaper` option
-- **Unified**: Same wallpaper used for desktop background (swww) and lock screen (swaylock)
-- **Styled Lock Screen**: Swaylock overlay with Kartoza colors, blur effects, clock, and indicators
+## Important Notes for Development
 
-Example configuration:
+### No Dotfile Management
+
+This module **does not deploy dotfiles**. The `dotfiles/` directory in this repository is **deprecated** and kept only for reference. Users must:
+
+1. Create their own `~/.config/wayfire/wayfire.ini`
+2. Set up their own waybar, mako, swaylock configurations
+3. Manage their own scripts and customizations
+
+### Minimal Approach
+
+When adding features to this module:
+
+- ✅ Add packages that benefit all users (e.g., wlr-randr, wl-clipboard)
+- ✅ Configure system services needed for functionality
+- ✅ Set environment variables for compatibility
+- ❌ Don't add opinionated configurations
+- ❌ Don't deploy dotfiles or scripts
+- ❌ Don't add customizations specific to one use case
+
+### Testing Changes
+
+1. Make changes to `modules/wayfire-desktop.nix`
+2. Run `nix fmt` to format code
+3. Run `nix flake check` to validate
+4. Test in VM or on a test system
+5. Update README.md if adding new options
+
+## Example Usage
+
+Users import this module in their own NixOS configuration:
+
 ```nix
-kartoza.wayfire-desktop = {
-  enable = true;
-  wallpaper = "/home/user/Pictures/custom-wallpaper.jpg";  # Custom wallpaper
-};
+{
+  inputs = {
+    wayfire-desktop.url = "github:yourusername/nix-wayfire-desktop";
+  };
+
+  outputs = { self, nixpkgs, wayfire-desktop, ... }: {
+    nixosConfigurations.myhost = nixpkgs.lib.nixosSystem {
+      modules = [
+        wayfire-desktop.nixosModules.default
+        {
+          wayfire-desktop.enable = true;
+        }
+      ];
+    };
+  };
+}
 ```
 
-### User Configuration Override Support
-
-The module follows XDG Base Directory Specification for configuration management:
-
-- **System configs**: `/etc/xdg/wayfire/`, `/etc/xdg/waybar/`, etc. (provided by module)
-- **User overrides**: `~/.config/wayfire/`, `~/.config/waybar/`, etc. (user customizations)
-- **Resolution order**: User configs in `~/.config/` take precedence over system configs in `/etc/xdg/`
-
-#### XDG Config Tools
-
-- `xdg-config-path` - Simple path helper for shell scripts
-- PATH includes both `~/.config/*/scripts` and `/etc/xdg/*/scripts` (user scripts first)
-- All scripts use hard-coded `/etc/xdg/` paths for consistent configuration resolution
-
-#### Overriding Configuration
-
-Users can override any system configuration by copying files to their home directory:
+Then they manage their own dotfiles separately, for example:
 
 ```bash
-# Override wayfire config
-cp /etc/xdg/wayfire/wayfire.ini ~/.config/wayfire/
+# User clones their dotfiles repo
+git clone https://github.com/user/dotfiles ~/.dotfiles
 
-# Override waybar config
-mkdir -p ~/.config/waybar
-cp /etc/xdg/waybar/config ~/.config/waybar/
-cp /etc/xdg/waybar/style.css ~/.config/waybar/
-
-# Override individual waybar modules
-mkdir -p ~/.config/waybar/config.d
-cp -r /etc/xdg/waybar/config.d/* ~/.config/waybar/config.d/
-
-# Override notification sound
-mkdir -p ~/.config/mako/sounds
-cp your-custom-sound.wav ~/.config/mako/sounds/notification.wav
+# User symlinks configs
+ln -s ~/.dotfiles/wayfire ~/.config/wayfire
+ln -s ~/.dotfiles/waybar ~/.config/waybar
 ```
 
-All applications and scripts will automatically use the user's configuration if present.
+## Migration Notes
 
-### Workspace Management System
+This project was previously a full desktop environment configuration with:
+- Dotfiles deployed to `/etc/xdg/`
+- Custom scripts and utilities
+- Kartoza-specific branding and customizations
 
-The module provides a comprehensive workspace management system with named workspaces and fuzzel-based switching:
+**These have been removed** to create a minimal, generic Wayfire module. The old dotfiles are preserved in the `dotfiles/` directory for users who want to reference or use them, but they are not deployed by the module.
 
-#### Features
+## Related Resources
 
-- **Named Workspaces**: Each workspace can have a custom name (Browser, Chat, Terminal, etc.)
-- **Fuzzel Switcher**: Beautiful graphical workspace selector with current workspace indicator
-- **Waybar Integration**: Clickable workspace widget showing current workspace, plus working taskbar
-- **Change Tracking**: Automatic logging and notifications when switching workspaces
-- **User Customizable**: Override workspace names via user configuration
-- **Wayfire Integration**: Uses Wayfire IPC for reliable workspace switching and status
-
-#### Default Workspace Layout (3×3 Grid)
-
-```
-┌─────────────┬─────────────┬─────────────┐
-│ 0: Browser  │ 1: Chat     │ 2: Terminal │
-├─────────────┼─────────────┼─────────────┤
-│ 3: Project1 │ 4: Project2 │ 5: Media    │
-├─────────────┼─────────────┼─────────────┤
-│ 6: Documents│ 7: Games    │ 8: System   │
-└─────────────┴─────────────┴─────────────┘
-```
-
-#### Keyboard Shortcuts
-
-- **`Super + D`** - Open fuzzel workspace switcher
-- **`Super + 1-9`** - Switch directly to workspace 1-9
-- **`Ctrl + Super + Arrow Keys`** - Navigate workspace grid
-- **`Super + Shift + 1-9`** - Move current window to workspace (partial support)
-- **`Super + Shift + Ctrl + Arrows`** - Move window in workspace grid
-
-#### Waybar Widget
-
-The waybar includes a workspace widget that:
-- Shows current workspace number and name (e.g., "1: Browser")
-- Click to open fuzzel workspace switcher
-- Updates automatically when workspace changes
-- Styled with Kartoza orange accent colors
-
-#### Managing Workspace Names
-
-```bash
-# Show current workspace
-workspace-names.sh current
-
-# List all workspace names
-workspace-names.sh list
-
-# Rename a workspace
-workspace-names.sh set 0 "Web Browser"
-workspace-names.sh set 3 "Development"
-
-# Get specific workspace name
-workspace-names.sh get 1
-```
-
-#### Customizing Workspace Names
-
-```bash
-# Copy system config to user location
-cp /etc/xdg/wayfire/workspace-names.conf ~/.config/wayfire/
-
-# Edit workspace names
-# Format: workspace_number=workspace_name
-echo "0=My Browser" >> ~/.config/wayfire/workspace-names.conf
-echo "1=Slack" >> ~/.config/wayfire/workspace-names.conf
-```
-
-#### Workspace Scripts
-
-- `workspace-switcher.sh` - Fuzzel-based workspace selector
-- `workspace-names.sh` - Workspace name management utility
-- `workspace-changed.sh` - Hook called when workspace changes
-- `workspace-display.sh` - Waybar widget for current workspace display
-
-### Key Scripts and Utilities
-
-- `unlock-keyring` - GUI keyring unlock at login using zenity
-- `wayfire/scripts/` - Workspace management, recording toggles, browser detection, clipboard management
-- `waybar/scripts/` - Status monitoring (temperature, power, notifications, workspace display)
-
-### Important Keybindings
-
-- **Super + Enter** - Terminal
-- **Super + Space** - Application launcher
-- **Super + B** - Browser
-- **Super + E** - File manager
-- **Super + Q** - Close window
-- **Super + F** - Fullscreen
-- **Super + M** - Maximize
-- **Super + T** - Toggle tiling/floating
-- **Super + D** - Workspace switcher
-- **Super + P** - Clipboard manager
-- **Super + Period** - Emoji picker
-- **Super + Minus** - Toggle on-screen keys (wshowkeys)
-- **Super + Comma** - Keybind cheatsheet
-- **Super + Delete** - Lock screen
-- **Super + H/J/K/L** - Focus window (vim keys)
-- **Ctrl + 4** - Screenshot area with gradia
-- **Ctrl + 5** - Screenshot full with gradia
-- **Ctrl + 6** - Toggle screen recording
-- **Super + 1-9** - Switch to workspace
-
-## Development Workflow
-
-1. **Making Config Changes**: Edit files in `dotfiles/` subdirectories
-2. **Waybar Changes**: Use modular system in `config.d/`, run `build-config.sh`
-3. **Testing**: Use `nix develop` shell, test waybar with live reload
-4. **Module Integration**: Changes are deployed via NixOS rebuild when module is imported
-
-## Integration Notes
-
-- Module configures complete Wayland environment
-- Uses greetd with regreet greeter for display management with Kartoza theming
-- Includes screen sharing support via xdg-desktop-portal-wlr
-- PAM integration for keyring unlock on login and screen unlock
-- Environment variables set for proper Wayland app compatibility
-- Wayfire provides smooth animations and desktop cube effects
+- [Wayfire Wiki](https://github.com/WayfireWM/wayfire/wiki)
+- [Wayfire Configuration Reference](https://github.com/WayfireWM/wayfire/wiki/Configuration)
+- [NixOS Wayland Guide](https://wiki.nixos.org/wiki/Wayland)

@@ -1,5 +1,11 @@
-# VM configuration for testing Kartoza Wayfire Desktop
-{ config, lib, pkgs, modulesPath, ... }:
+# VM configuration for testing Wayfire Desktop
+{
+  config,
+  lib,
+  pkgs,
+  modulesPath,
+  ...
+}:
 
 {
   imports = [
@@ -7,8 +13,8 @@
     ./modules/wayfire-desktop.nix
   ];
 
-  # Enable Kartoza Wayfire Desktop with explicit configuration
-  kartoza.wayfire-desktop = {
+  # Enable Wayfire Desktop with basic configuration
+  wayfire-desktop = {
     enable = true;
 
     iconTheme = "Papirus";
@@ -22,21 +28,8 @@
     # Display scaling configuration
     fractionalScaling = 1.0; # 100% scaling for VM
 
-    # Per-display scaling - configure for VM display
-    displayScaling = {
-      "Virtual-1" = 1.0; # QEMU virtual display
-    };
-
     # Qt application theming
-    qtTheme = "gnome"; # Options: gnome, gtk2, kde, fusion
-
-    # Keyboard layout configuration (demonstrates customization)
-    keyboardLayouts =
-      [ "us" "de" "fr" ]; # US, German, French (Alt+Shift to toggle)
-
-    # Wallpaper configuration (demonstrates unified desktop/lock screen wallpaper)
-    # Defaults to Kartoza branded wallpaper, can be overridden with custom image:
-    # wallpaper = /path/to/custom-wallpaper.jpg;
+    qtTheme = "qt5ct";
   };
 
   # VM-specific configuration
@@ -72,7 +65,12 @@
   users.users.testuser = {
     isNormalUser = true;
     password = "test"; # Simple password for VM testing
-    extraGroups = [ "wheel" "networkmanager" "video" "audio" ];
+    extraGroups = [
+      "wheel"
+      "networkmanager"
+      "video"
+      "audio"
+    ];
   };
 
   # Enable sudo for test user
@@ -86,7 +84,11 @@
   };
 
   # Minimal package set for testing
-  environment.systemPackages = with pkgs; [ firefox nautilus gnome-terminal ];
+  environment.systemPackages = with pkgs; [
+    firefox
+    nautilus
+    gnome-terminal
+  ];
 
   # Auto-login for convenience in VM testing
   # Note: Using SDDM instead of greetd as per module configuration

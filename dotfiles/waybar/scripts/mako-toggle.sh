@@ -7,7 +7,7 @@ STATE_FILE="$XDG_RUNTIME_DIR/mako-dnd-state"
 # Function to ensure mako is running
 ensure_mako_running() {
     if ! pgrep -x mako >/dev/null 2>&1; then
-        mako -c "$(xdg-config-path mako/kartoza)" &
+        mako &
         sleep 0.5  # Give mako time to start
     fi
 }

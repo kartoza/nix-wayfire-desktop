@@ -2,11 +2,11 @@
 # Toggle scratchpad indicator when special workspace is shown/hidden
 # Usage: scratchpad-toggle.sh
 
-# Use system eww config from /etc/xdg/eww, or user override from ~/.config/eww
+# Use system eww config from ~/.config/eww, or user override from ~/.config/eww
 if [ -d "$HOME/.config/eww" ]; then
     EWW_CONFIG="$HOME/.config/eww"
 else
-    EWW_CONFIG="/etc/xdg/eww"
+    EWW_CONFIG="~/.config/eww"
 fi
 
 # Ensure eww is running

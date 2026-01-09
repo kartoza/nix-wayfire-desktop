@@ -7,7 +7,7 @@
 set -euo pipefail
 
 # Use the existing fuzzel emoji script with proper data
-EMOJI="$(sed '1,/^### DATA ###$/d' /etc/xdg/hypr/scripts/fuzzel-emoji | fuzzel \
+EMOJI="$(sed '1,/^### DATA ###$/d' ~/.config/hypr/scripts/fuzzel-emoji | fuzzel \
     --dmenu \
     --prompt="🙂 Emoji: " \
     --width=48 \

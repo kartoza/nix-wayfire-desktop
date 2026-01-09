@@ -16,7 +16,7 @@ else
 fi
 
 WS_NAME_FILE="$HOME/.config/hypr/workspace-names.conf"
-SYSTEM_WORKSPACE_NAMES_FILE="/etc/xdg/hypr/workspace-names.conf"
+SYSTEM_WORKSPACE_NAMES_FILE="~/.config/hypr/workspace-names.conf"
 
 # Ensure user config directory exists
 mkdir -p "$(dirname "$WS_NAME_FILE")"

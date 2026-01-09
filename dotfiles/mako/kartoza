@@ -17,7 +17,7 @@ max-visible=2
 group-by=summary
 icon-path=/run/current-system/sw/share/icons/Papirus
 icons=1
-on-notify=exec /run/current-system/sw/bin/mpv /etc/xdg/mako/sounds/notification.wav
+on-notify=exec /run/current-system/sw/bin/mpv ~/.config/mako/sounds/notification.wav
 
 # Enable action buttons for notifications (required for bluetooth pairing)
 actions=1

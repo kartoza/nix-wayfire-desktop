@@ -3,7 +3,7 @@
 # Shows current workspace number and name
 
 WORKSPACE_NAMES_FILE="$HOME/.config/hypr/workspace-names.conf"
-SYSTEM_WORKSPACE_NAMES_FILE="/etc/xdg/hypr/workspace-names.conf"
+SYSTEM_WORKSPACE_NAMES_FILE="~/.config/hypr/workspace-names.conf"
 
 # Ensure user config directory exists
 mkdir -p "$(dirname "$WORKSPACE_NAMES_FILE")"

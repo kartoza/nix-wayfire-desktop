@@ -2,7 +2,7 @@
 # Fuzzel-based workspace switcher for Hyprland
 
 WORKSPACE_NAMES_FILE="$HOME/.config/hypr/workspace-names.conf"
-SYSTEM_WORKSPACE_NAMES_FILE="/etc/xdg/hypr/workspace-names.conf"
+SYSTEM_WORKSPACE_NAMES_FILE="~/.config/hypr/workspace-names.conf"
 
 # Ensure we have a workspace names file
 if [[ ! -f "$WORKSPACE_NAMES_FILE" ]]; then

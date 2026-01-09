@@ -6,11 +6,11 @@ WORKSPACE_NUMBER="${1:-0}"
 WORKSPACE_NAME="${2:-Workspace}"
 DISPLAY_DURATION="${3:-5000}" # milliseconds to show overlay (5 seconds)
 
-# Use system eww config from /etc/xdg/eww, or user override from ~/.config/eww
+# Use system eww config from ~/.config/eww, or user override from ~/.config/eww
 if [ -d "$HOME/.config/eww" ]; then
   EWW_CONFIG="$HOME/.config/eww"
 else
-  EWW_CONFIG="/etc/xdg/eww"
+  EWW_CONFIG="~/.config/eww"
 fi
 
 # Ensure eww is running
