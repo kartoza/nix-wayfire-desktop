@@ -11,7 +11,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Testing Waybar Configuration
 ```bash
-cd /path/to/nix-hyprland-desktop/dotfiles/waybar
+cd /path/to/nix-wayfire-desktop/dotfiles/waybar
 ./build-config.sh  # Rebuild modular waybar config
 waybar -c config -s style.css --log-level debug  # Test waybar changes
 ```
@@ -19,23 +19,23 @@ waybar -c config -s style.css --log-level debug  # Test waybar changes
 
 ## Architecture Overview
 
-This is a **standalone NixOS flake** that provides a complete Hyprland desktop environment configuration. It's designed to be imported into any NixOS system as a module.
+This is a **standalone NixOS flake** that provides a complete Wayfire desktop environment configuration. It's designed to be imported into any NixOS system as a module.
 
 ### Core Components
 
 1. **Flake Structure** (`flake.nix`):
-   - Exports `nixosModules.hyprland-desktop` for importing into NixOS configs
+   - Exports `nixosModules.wayfire-desktop` for importing into NixOS configs
    - Provides development shell with formatting tools
-   - Uses nixpkgs 25.05 with Hyprland flake input
+   - Uses nixpkgs 25.05
 
-2. **Main Module** (`modules/hyprland-desktop.nix`):
-   - Comprehensive Hyprland desktop setup with all dependencies
+2. **Main Module** (`modules/wayfire-desktop.nix`):
+   - Comprehensive Wayfire desktop setup with all dependencies
    - Configures services: PipeWire, NetworkManager, gnome-keyring, greetd
    - Deploys dotfiles to `/etc/xdg` for system-wide availability with user override support
    - Includes keyring unlock utility and XDG config path resolution tools
 
 3. **Dotfiles Structure** (`dotfiles/`):
-   - **hypr/**: Hyprland compositor config with scripts
+   - **wayfire/**: Wayfire compositor config with scripts
    - **waybar/**: Modular status bar config system with working taskbar (see Waybar section below)
    - **wofi/**: Application launcher styling
    - **mako/**: Notification daemon theming (Kartoza branded) with custom notification sound
@@ -48,14 +48,14 @@ The waybar config uses a **unique modular approach** for easier maintenance:
 - `config.d/*.json` - Individual feature modules (base, widgets, custom modules)
 - `build-config.sh` - Merges JSON files using `jq` into final `config`
 - Numbering system: `00-` (base), `10-` (core modules), `90-` (UI widgets)
-- Build process automatically includes `wlr/taskbar` and `wlr/workspaces` modules for Hyprland
-- Taskbar now works with proper `hyprctl` commands for window management
+- Build process automatically includes `wlr/taskbar` and `wlr/workspaces` modules for Wayfire
+- Taskbar works with proper wlr protocols for window management
 
 ### Theme Integration
 
 - Expects `config.kartoza.theme.iconTheme.name` from importing flake (defaults to Papirus)
 - Kartoza branding with custom logos and color schemes
-- Orange accent color (`#DF9E2F`) for active window borders in Hyprland
+- Orange accent color (`#DF9E2F`) for active window borders in Wayfire
 
 ### Keyboard Layout Configuration
 
@@ -63,13 +63,13 @@ The module provides configurable keyboard layouts with intelligent switching:
 
 - **Default**: `["us", "pt"]` (US English, Portuguese)
 - **Customizable**: Set any list of layouts via `keyboardLayouts` option
-- **Smart Toggle**: Waybar script automatically reads layouts from Hyprland config
+- **Smart Toggle**: Waybar script automatically reads layouts from Wayfire config
 - **Alt+Shift**: Hardware toggle between configured layouts
 - **Display Names**: Automatic conversion (us→EN, de→DE, fr→FR, pt→PT, etc.)
 
 Example configuration:
 ```nix
-kartoza.hyprland-desktop = {
+kartoza.wayfire-desktop = {
   enable = true;
   keyboardLayouts = [ "us" "de" "fr" ];  # US, German, French
 };
@@ -86,7 +86,7 @@ The module provides unified wallpaper management across desktop and lock screen:
 
 Example configuration:
 ```nix
-kartoza.hyprland-desktop = {
+kartoza.wayfire-desktop = {
   enable = true;
   wallpaper = "/home/user/Pictures/custom-wallpaper.jpg";  # Custom wallpaper
 };
@@ -96,8 +96,8 @@ kartoza.hyprland-desktop = {
 
 The module follows XDG Base Directory Specification for configuration management:
 
-- **System configs**: `/etc/xdg/hypr/`, `/etc/xdg/waybar/`, etc. (provided by module)
-- **User overrides**: `~/.config/hypr/`, `~/.config/waybar/`, etc. (user customizations)
+- **System configs**: `/etc/xdg/wayfire/`, `/etc/xdg/waybar/`, etc. (provided by module)
+- **User overrides**: `~/.config/wayfire/`, `~/.config/waybar/`, etc. (user customizations)
 - **Resolution order**: User configs in `~/.config/` take precedence over system configs in `/etc/xdg/`
 
 #### XDG Config Tools
@@ -111,8 +111,8 @@ The module follows XDG Base Directory Specification for configuration management
 Users can override any system configuration by copying files to their home directory:
 
 ```bash
-# Override hyprland config
-cp /etc/xdg/hypr/hyprland.conf ~/.config/hypr/
+# Override wayfire config
+cp /etc/xdg/wayfire/wayfire.ini ~/.config/wayfire/
 
 # Override waybar config
 mkdir -p ~/.config/waybar
@@ -141,7 +141,7 @@ The module provides a comprehensive workspace management system with named works
 - **Waybar Integration**: Clickable workspace widget showing current workspace, plus working taskbar
 - **Change Tracking**: Automatic logging and notifications when switching workspaces
 - **User Customizable**: Override workspace names via user configuration
-- **Hyprctl Integration**: Uses `hyprctl` for reliable workspace switching and status
+- **Wayfire Integration**: Uses Wayfire IPC for reliable workspace switching and status
 
 #### Default Workspace Layout (3×3 Grid)
 
@@ -157,10 +157,10 @@ The module provides a comprehensive workspace management system with named works
 
 #### Keyboard Shortcuts
 
-- **`Super + S`** - Open fuzzel workspace switcher
+- **`Super + D`** - Open fuzzel workspace switcher
 - **`Super + 1-9`** - Switch directly to workspace 1-9
 - **`Ctrl + Super + Arrow Keys`** - Navigate workspace grid
-- **`Super + Shift + 1-9`** - Move current window to workspace
+- **`Super + Shift + 1-9`** - Move current window to workspace (partial support)
 - **`Super + Shift + Ctrl + Arrows`** - Move window in workspace grid
 
 #### Waybar Widget
@@ -177,7 +177,7 @@ The waybar includes a workspace widget that:
 # Show current workspace
 workspace-names.sh current
 
-# List all workspace names  
+# List all workspace names
 workspace-names.sh list
 
 # Rename a workspace
@@ -192,12 +192,12 @@ workspace-names.sh get 1
 
 ```bash
 # Copy system config to user location
-cp /etc/xdg/hypr/workspace-names.conf ~/.config/hypr/
+cp /etc/xdg/wayfire/workspace-names.conf ~/.config/wayfire/
 
 # Edit workspace names
 # Format: workspace_number=workspace_name
-echo "0=My Browser" >> ~/.config/hypr/workspace-names.conf
-echo "1=Slack" >> ~/.config/hypr/workspace-names.conf
+echo "0=My Browser" >> ~/.config/wayfire/workspace-names.conf
+echo "1=Slack" >> ~/.config/wayfire/workspace-names.conf
 ```
 
 #### Workspace Scripts
@@ -210,8 +210,30 @@ echo "1=Slack" >> ~/.config/hypr/workspace-names.conf
 ### Key Scripts and Utilities
 
 - `unlock-keyring` - GUI keyring unlock at login using zenity
-- `hypr/scripts/` - Workspace management, recording toggles, browser detection (updated for Hyprland)
+- `wayfire/scripts/` - Workspace management, recording toggles, browser detection, clipboard management
 - `waybar/scripts/` - Status monitoring (temperature, power, notifications, workspace display)
+
+### Important Keybindings
+
+- **Super + Enter** - Terminal
+- **Super + Space** - Application launcher
+- **Super + B** - Browser
+- **Super + E** - File manager
+- **Super + Q** - Close window
+- **Super + F** - Fullscreen
+- **Super + M** - Maximize
+- **Super + T** - Toggle tiling/floating
+- **Super + D** - Workspace switcher
+- **Super + P** - Clipboard manager
+- **Super + Period** - Emoji picker
+- **Super + Minus** - Toggle on-screen keys (wshowkeys)
+- **Super + Comma** - Keybind cheatsheet
+- **Super + Delete** - Lock screen
+- **Super + H/J/K/L** - Focus window (vim keys)
+- **Ctrl + 4** - Screenshot area with gradia
+- **Ctrl + 5** - Screenshot full with gradia
+- **Ctrl + 6** - Toggle screen recording
+- **Super + 1-9** - Switch to workspace
 
 ## Development Workflow
 
@@ -224,7 +246,7 @@ echo "1=Slack" >> ~/.config/hypr/workspace-names.conf
 
 - Module configures complete Wayland environment
 - Uses greetd with regreet greeter for display management with Kartoza theming
-- Includes screen sharing support via xdg-desktop-portal-hyprland
+- Includes screen sharing support via xdg-desktop-portal-wlr
 - PAM integration for keyring unlock on login and screen unlock
 - Environment variables set for proper Wayland app compatibility
-- Windows spawn in floating mode by default (can be toggled to tiling with Super+F)
+- Wayfire provides smooth animations and desktop cube effects
